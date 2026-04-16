@@ -117,7 +117,7 @@ sequenceDiagram
 
 ## **API Design**
 
-### Endpoints (Phase 1: MSSQL Only)
+### Endpoints
 
 | Method | Endpoint   | Description                     |
 | ------ | ---------- | ------------------------------- |
@@ -262,15 +262,13 @@ SemanticSearchEngine/
 │   │
 │   ├── api/
 │   │   ├── __init__.py
-│   │   └── v1/
+│   │   ├── router.py          # Main API router
+│   │   ├── schemas.py         # Request/Response models
+│   │   └── endpoints/
 │   │       ├── __init__.py
-│   │       ├── router.py          # Main API router
-│   │       ├── endpoints/
-│   │       │   ├── __init__.py
-│   │       │   ├── search.py      # /search endpoints
-│   │       │   ├── ingest.py      # /ingest endpoint
-│   │       │   └── health.py      # /health endpoint
-│   │       └── schemas.py         # Request/Response models
+│   │       ├── search.py      # /search endpoints
+│   │       ├── ingest.py      # /ingest endpoint
+│   │       └── health.py      # /health endpoint
 │   │
 │   ├── services/
 │   │   ├── __init__.py

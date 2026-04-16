@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy import text
 
 from app.dependencies import get_db
-from app.api.v1.schemas import IngestRequest, IngestResponse
+from app.api.schemas import IngestRequest, IngestResponse
 
 router = APIRouter()
 

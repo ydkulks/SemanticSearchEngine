@@ -3,7 +3,7 @@ from fastapi import APIRouter, Depends, Query
 from sqlalchemy.orm import Session
 
 from app.dependencies import get_db
-from app.api.v1.schemas import SearchRequest, SearchResponse, SearchResult
+from app.api.schemas import SearchRequest, SearchResponse, SearchResult
 from app.services.search.mssql_search import mssql_vector_search
 
 router = APIRouter()
