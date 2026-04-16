@@ -1,0 +1,13 @@
+services:
+  app:
+    build: .
+    env_file:
+      - docker.env
+    network_mode: host
+    ports:
+      - "8000:8000"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3

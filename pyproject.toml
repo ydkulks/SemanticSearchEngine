@@ -1,0 +1,40 @@
+[project]
+name = "semanticsearchengine"
+version = "0.1.0"
+description = "Semantic Search Engine with FastAPI, MSSQL, and Neo4j"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "fastapi>=0.115.0",
+    "uvicorn[standard]>=0.32.0",
+    "neo4j>=6.1.0",
+    "pydantic>=2.13.0",
+    "pydantic-settings>=2.13.1",
+    "pyodbc>=5.3.0",
+    "python-dotenv>=1.2.2",
+    "sqlalchemy>=2.0.49",
+    "alembic>=1.14.0",
+    "httpx>=0.28.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.3.0",
+    "pytest-asyncio>=0.25.0",
+    "ruff>=0.8.0",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["app"]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
+
+[tool.ruff]
+target-version = "py311"
+line-length = 100
