@@ -62,7 +62,7 @@ class Neo4jInitializer(BaseDBInitializer):
         return False
 
 
-class KylinInitializer(BaseDBInitializer):
+class HBaseInitializer(BaseDBInitializer):
     def check_connection(self) -> bool:
         return False
 

@@ -39,6 +39,18 @@ class Neo4jConfig(BaseSettings):
     )
 
 
+class HBaseConfig(BaseSettings):
+    host: str = ""
+    port: str = "9090"
+    timeout: int = 30
+
+    model_config = SettingsConfigDict(
+        env_file=".env",
+        env_prefix="HBASE_",
+        extra="ignore",
+    )
+
+
 class AppConfig(BaseSettings):
     app_name: str = "Semantic Search Engine"
     debug: bool = False
@@ -53,6 +65,7 @@ class Settings(BaseSettings):
     app: AppConfig = AppConfig()
     mssql: MSSQLConfig = MSSQLConfig()
     neo4j: Neo4jConfig = Neo4jConfig()
+    hbase: HBaseConfig = HBaseConfig()
 
     model_config = SettingsConfigDict(env_file=".env")
 

@@ -2,14 +2,14 @@
 import argparse
 import sys
 
-from app.db.init import MSSQLInitializer, Neo4jInitializer, KylinInitializer
+from app.db.init import MSSQLInitializer, Neo4jInitializer, HBaseInitializer
 from app.db.base import BaseDBInitializer
 
 
 INITIALIZERS: dict[str, type[BaseDBInitializer]] = {
     "mssql": MSSQLInitializer,
     "neo4j": Neo4jInitializer,
-    "kylin": KylinInitializer,
+    "hbase": HBaseInitializer,
 }
 
 

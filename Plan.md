@@ -1,6 +1,6 @@
-# Semantic Search Engine — Project Plan
+# **Semantic Search Engine — Project Plan**
 
-## System Architecture
+## **System Architecture**
 
 ```mermaid
 ---
@@ -24,7 +24,7 @@ flowchart TB
  subgraph subGraph3["Vector Databases"]
         MSSQL[("MSSQL<br>Vector Store")]
         Neo4j[("Neo4j<br>Graph Store")]
-        HBaseAPI[("HBase/Kylin<br>API")]
+        HBaseAPI[("HBase<br>API")]
   end
  subgraph subGraph4["Embedding Services"]
         Embedder["Embedding Model<br>BGE-M3"]
@@ -41,7 +41,7 @@ flowchart TB
     subGraph0 --> subGraph1
 ```
 
-## Data Flow
+## **Data Flow**
 
 ```mermaid
 ---
@@ -68,12 +68,12 @@ sequenceDiagram
     par Parallel Execution
         Router->>MSSQL: Vector similarity search
         Router->>Neo4j: Cypher + vector search
-        Router->>Kylin: Translate to OLAP query
+        Router->>HBase: Key-value query
     end
 
     MSSQL-->>RRF: Top-K results
     Neo4j-->>RRF: Top-K results
-    Kylin-->>RRF: Top-K results
+    HBase-->>RRF: Top-K results
 
     RRF->>RRF: Apply Reciprocal Rank Fusion
     RRF-->>Reranker: Merged top-50 results
@@ -84,55 +84,55 @@ sequenceDiagram
     FastAPI-->>Client: JSON response
 ```
 
-## Component Breakdown
+## **Component Breakdown**
 
-| Component | Responsibility | Tech Stack |
-|-----------|---------------|------------|
-| **API Gateway** | HTTP endpoints, auth, rate limiting | FastAPI + Uvicorn |
-| **Query Router** | Parse query, route to backends, parallelize | Python asyncio |
-| **Embedding Service** | Generate text embeddings | BGE-M3 / sentence-transformers |
-| **MSSQL Vector Store** | Store vectors, similarity search | MSSQL (native vectors, 2025+) |
-| **Neo4j Graph Store** | Graph traversal + vector search | Neo4j + Cypher |
-| **HBase/Kylin API** | Analytics data search | REST API |
-| **RRF Merger** | Merge ranked results | Python |
-| **BGE Reranker** | Cross-encoder reranking | BGE-reranker-base |
+| Component              | Responsibility                              | Tech Stack                     |
+| ---------------------- | ------------------------------------------- | ------------------------------ |
+| **API Gateway**        | HTTP endpoints, auth, rate limiting         | FastAPI + Uvicorn              |
+| **Query Router**       | Parse query, route to backends, parallelize | Python asyncio                 |
+| **Embedding Service**  | Generate text embeddings                    | BGE-M3 / sentence-transformers |
+| **MSSQL Vector Store** | Store vectors, similarity search            | MSSQL (native vectors, 2025+)  |
+| **Neo4j Graph Store**  | Graph traversal + vector search             | Neo4j + Cypher                 |
+| **HBase API**          | Analytics data search                       | REST API / HappyBase            |
+| **RRF Merger**         | Merge ranked results                        | Python                         |
+| **BGE Reranker**       | Cross-encoder reranking                     | BGE-reranker-base              |
 
-## Tech Stack
+## **Tech Stack**
 
-| Category | Technology | Version |
-|----------|------------|---------|
-| **API Framework** | FastAPI | >= 0.115 |
-| **Server** | Uvicorn | >= 0.32 |
-| **Database ORM** | SQLAlchemy | >= 2.0 |
-| **Migrations** | Alembic | >= 1.14 |
-| **MSSQL Driver** | pyodbc | >= 5.3 |
-| **MSSQL Native Vectors** | SQL Server 2025+ | - |
-| **Neo4j Driver** | neo4j | >= 6.1 |
-| **Embeddings** | sentence-transformers | latest |
-| **Reranker** | FlagEmbedding | latest |
-| **Testing** | pytest, httpx | latest |
-| **Container** | Docker + docker-compose | latest |
+| Category                 | Technology              | Version  |
+| ------------------------ | ----------------------- | -------- |
+| **API Framework**        | FastAPI                 | >= 0.115 |
+| **Server**               | Uvicorn                 | >= 0.32  |
+| **Database ORM**         | SQLAlchemy              | >= 2.0   |
+| **Migrations**           | Alembic                 | >= 1.14  |
+| **MSSQL Driver**         | pyodbc                  | >= 5.3   |
+| **MSSQL Native Vectors** | SQL Server 2025+        | -        |
+| **Neo4j Driver**         | neo4j                   | >= 6.1   |
+| **Embeddings**           | sentence-transformers   | latest   |
+| **Reranker**             | FlagEmbedding           | latest   |
+| **Testing**              | pytest, httpx           | latest   |
+| **Container**            | Docker + docker-compose | latest   |
 
 ---
 
-## API Design
+## **API Design**
 
 ### Endpoints (Phase 1: MSSQL Only)
 
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| `POST` | `/search` | Unified semantic search (MSSQL) |
-| `GET` | `/sources` | List available sources |
-| `POST` | `/ingest` | Ingest document |
-| `GET` | `/health` | Health check |
-| `GET` | `/docs` | Swagger UI |
+| Method | Endpoint   | Description                     |
+| ------ | ---------- | ------------------------------- |
+| `POST` | `/search`  | Unified semantic search (MSSQL) |
+| `GET`  | `/sources` | List available sources          |
+| `POST` | `/ingest`  | Ingest document                 |
+| `GET`  | `/health`  | Health check                    |
+| `GET`  | `/docs`    | Swagger UI                      |
 
 ### Future Endpoints
 
-| Method | Endpoint | Description |
-|--------|----------|-------------|
+| Method | Endpoint        | Description       |
+| ------ | --------------- | ----------------- |
 | `POST` | `/search/neo4j` | Neo4j-only search |
-| `POST` | `/search/kylin` | Kylin-only search |
+| `POST` | `/search/hbase` | HBase-only search |
 
 ### Request/Response Schemas
 
@@ -185,7 +185,7 @@ class SearchResponse(BaseModel):
       "content": "Support Vector Machines are supervised learning models...",
       "source": "mssql",
       "score": 0.92,
-      "metadata": {"title": "SVM Overview", "category": "research_papers"},
+      "metadata": { "title": "SVM Overview", "category": "research_papers" },
       "rerank_score": 0.98
     }
   ],
@@ -197,7 +197,7 @@ class SearchResponse(BaseModel):
 
 ---
 
-## Ranking Pipeline
+## **Ranking Pipeline**
 
 ### Reciprocal Rank Fusion (RRF) Formula
 
@@ -206,18 +206,18 @@ def rrf_fusion(results_list: list[list[SearchResult]], k: int = 60) -> list[Sear
     """
     Reciprocal Rank Fusion formula:
     RRF(d) = Σ 1/(k + rank(d))
-    
+
     Where:
     - d = document
     - k = constant (typically 60)
     - rank(d) = position of document in source ranking
     """
     doc_scores: dict[str, float] = defaultdict(float)
-    
+
     for results in results_list:
         for rank, doc in enumerate(results, start=1):
             doc_scores[doc.id] += 1 / (k + rank)
-    
+
     # Sort by fused score descending
     fused = sorted(doc_scores.items(), key=lambda x: x[1], reverse=True)
     return fused
@@ -230,7 +230,7 @@ graph LR
     subgraph "Parallel Retrieval"
         Q1[Query] --> MSSQL1[MSSQL<br/>Top-20]
         Q1 --> N4J1[Neo4j<br/>Top-20]
-        Q1 --> K1[Kylin<br/>Top-20]
+        Q1 --> H1[HBase<br/>Top-20]
     end
 
     subgraph "RRF Merge"
@@ -250,9 +250,9 @@ graph LR
 
 ---
 
-## Folder Structure
+## **Folder Structure**
 
-```
+```text
 SemanticSearchEngine/
 ├── app/
 │   ├── __init__.py
@@ -282,7 +282,7 @@ SemanticSearchEngine/
 │   │       ├── merger.py          # RRF implementation
 │   │       ├── mssql_search.py    # MSSQL vector search
 │   │       ├── neo4j_search.py    # Neo4j vector search
-│   │       └── kylin_search.py    # Kylin API search
+│   │       └── hbase_search.py    # HBase API search
 │   │
 │   ├── repositories/
 │   │   ├── __init__.py
@@ -327,9 +327,10 @@ SemanticSearchEngine/
 
 ---
 
-## Implementation Phases
+## **Implementation Phases**
 
 ### Phase 1: Foundation & MSSQL (Current Focus)
+
 - [x] Set up FastAPI project structure with Alembic
 - [ ] Configure MSSQL connections with native vector support
 - [ ] Create base SQLAlchemy models and migrations
@@ -338,27 +339,32 @@ SemanticSearchEngine/
 - [ ] Set up Docker + Makefile
 
 ### Phase 2: Neo4j Integration (Future)
+
 - [ ] Design Neo4j node/relationship schema
 - [ ] Create vector indexes in Neo4j
 - [ ] Implement hybrid Cypher + vector search
 - [ ] Add Neo4j-specific search endpoint
 
-### Phase 3: Kylin API Integration (Future)
-- [ ] Design Kylin API client
-- [ ] Implement NL-to-SQL translation
+### Phase 3: HBase API Integration (Future)
+
+- [ ] Design HBase API client
+- [ ] Implement data access patterns
 - [ ] Create semantic search over analytics data
 
 ### Phase 4: Unified Search + RRF (Future)
+
 - [ ] Implement query router (parallel execution)
 - [ ] Implement RRF merger
 - [ ] Create unified `/search` endpoint
 
 ### Phase 5: Reranking Integration (Future)
+
 - [ ] Integrate BGE reranker
 - [ ] Add reranking toggle to API
 - [ ] Implement A/B testing infrastructure
 
 ### Phase 6: Evaluation & Demo (Future)
+
 - [ ] Set up DeepEval metrics
 - [ ] Retrieval accuracy evaluation
 - [ ] Latency benchmarks
@@ -366,7 +372,7 @@ SemanticSearchEngine/
 
 ---
 
-## MSSQL Schema Design (SQL Server 2025+ Native Vectors)
+## **MSSQL Schema Design (SQL Server 2025+ Native Vectors)**
 
 ```sql
 -- Documents table
@@ -389,7 +395,7 @@ CREATE TABLE embeddings (
 );
 
 -- Create HNSW vector index for fast similarity search
-CREATE INDEX idx_embeddings_vector_hnsw 
+CREATE INDEX idx_embeddings_vector_hnsw
 ON embeddings USING HNSW (embedding VECTOR_COSINE_DISTANCE)
 WITH (m = 16, ef_construction = 200);
 
@@ -423,7 +429,7 @@ ORDER BY e.embedding <=> @query_vector;
 
 ---
 
-## Open Questions
+## **Open Questions**
 
 1. **Embedding Model**: BGE-M3 (multilingual, 1536 dim) or a different model?
 2. **Data to Index**: Do you have existing documents to ingest, or should I create synthetic test data?
