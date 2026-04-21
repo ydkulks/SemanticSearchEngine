@@ -27,17 +27,3 @@ app.add_middleware(
 )
 
 app.include_router(api_router)
-
-
-@app.get("/")
-def root():
-    return {
-        "name": settings.app.app_name,
-        "docs": "/docs",
-        "openapi": "/openapi.json",
-    }
-
-
-@app.get("/health")
-def health():
-    return {"status": "ok"}

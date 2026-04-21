@@ -1,5 +1,14 @@
 # **Semantic Search Engine — Project Plan**
 
+## **Dataset: DBLP Academic Citation Network**
+
+This project uses the DBLP (Digital Bibliography & Library Project) citation network dataset containing ~619K academic papers with:
+
+- Paper metadata (title, abstract, year, venue)
+- Author information (name, affiliation)
+- Citation relationships
+- Co-authorship networks
+
 ## **System Architecture**
 
 ```mermaid
@@ -21,21 +30,20 @@ flowchart TB
         RRF["RRF Merger"]
         Reranker["BGE Reranker"]
   end
- subgraph subGraph3["Vector Databases"]
-        MSSQL[("MSSQL<br>Vector Store")]
-        Neo4j[("Neo4j<br>Graph Store")]
-        HBaseAPI[("HBase<br>API")]
+ subgraph subGraph3["Data Stores"]
+        MSSQL[("MSSQL<br>Papers")]
+        Neo4j[("Neo4j<br>Citation Graph")]
+        HBase[("HBase<br>Metrics")]
   end
  subgraph subGraph4["Embedding Services"]
         Embedder["Embedding Model<br>BGE-M3"]
   end
     FastAPI --> Router
-    Router --> HBaseAPI & MSSQL & RRF
-    Router -- <br> --> Neo4j
+    Router --> MSSQL & Neo4j & HBase
     Router <--> Embedder
     MSSQL --> RRF
     Neo4j --> RRF
-    HBaseAPI --> RRF
+    HBase --> RRF
     RRF -- "top-K" --> Reranker
     Reranker -- final search response --> FastAPI
     subGraph0 --> subGraph1
@@ -66,14 +74,14 @@ sequenceDiagram
     Embedder-->>FastAPI: query_vector[1536]
     FastAPI->>Router: Distribute search
     par Parallel Execution
-        Router->>MSSQL: Vector similarity search
-        Router->>Neo4j: Cypher + vector search
-        Router->>HBase: Key-value query
+        Router->>MSSQL: Full-text + vector search
+        Router->>Neo4j: Citation path search
+        Router->>HBase: Metrics query
     end
 
-    MSSQL-->>RRF: Top-K results
-    Neo4j-->>RRF: Top-K results
-    HBase-->>RRF: Top-K results
+    MSSQL-->>RRF: Top-K papers
+    Neo4j-->>RRF: Top-K papers
+    HBase-->>RRF: Top-K papers
 
     RRF->>RRF: Apply Reciprocal Rank Fusion
     RRF-->>Reranker: Merged top-50 results
@@ -84,34 +92,40 @@ sequenceDiagram
     FastAPI-->>Client: JSON response
 ```
 
+## **Database Distribution**
+
+| Database  | Content                  | Use Case                         |
+| --------- | ------------------------ | -------------------------------- |
+| **MSSQL** | Papers, Authors, Venues  | Full-text search, filtering      |
+| **Neo4j** | Citations, Co-authorship | Graph traversal, recommendations |
+| **HBase** | Citation counts, h-index | Metrics, aggregations            |
+
 ## **Component Breakdown**
 
-| Component              | Responsibility                              | Tech Stack                     |
-| ---------------------- | ------------------------------------------- | ------------------------------ |
-| **API Gateway**        | HTTP endpoints, auth, rate limiting         | FastAPI + Uvicorn              |
-| **Query Router**       | Parse query, route to backends, parallelize | Python asyncio                 |
-| **Embedding Service**  | Generate text embeddings                    | BGE-M3 / sentence-transformers |
-| **MSSQL Vector Store** | Store vectors, similarity search            | MSSQL (native vectors, 2025+)  |
-| **Neo4j Graph Store**  | Graph traversal + vector search             | Neo4j + Cypher                 |
-| **HBase API**          | Analytics data search                       | REST API / HappyBase            |
-| **RRF Merger**         | Merge ranked results                        | Python                         |
-| **BGE Reranker**       | Cross-encoder reranking                     | BGE-reranker-base              |
+| Component             | Responsibility                              | Tech Stack                     |
+| --------------------- | ------------------------------------------- | ------------------------------ |
+| **API Gateway**       | HTTP endpoints, auth, rate limiting         | FastAPI + Uvicorn              |
+| **Query Router**      | Parse query, route to backends, parallelize | Python asyncio                 |
+| **Embedding Service** | Generate text embeddings                    | BGE-M3 / sentence-transformers |
+| **MSSQL Paper Store** | Store papers, authors, venues               | MSSQL                          |
+| **Neo4j Graph Store** | Citation network, co-authorship             | Neo4j + Cypher                 |
+| **HBase Metrics**     | Analytics, citation counts                  | HBase / HappyBase              |
+| **RRF Merger**        | Merge ranked results                        | Python                         |
+| **BGE Reranker**      | Cross-encoder reranking                     | BGE-reranker-base              |
 
 ## **Tech Stack**
 
-| Category                 | Technology              | Version  |
-| ------------------------ | ----------------------- | -------- |
-| **API Framework**        | FastAPI                 | >= 0.115 |
-| **Server**               | Uvicorn                 | >= 0.32  |
-| **Database ORM**         | SQLAlchemy              | >= 2.0   |
-| **Migrations**           | Alembic                 | >= 1.14  |
-| **MSSQL Driver**         | pyodbc                  | >= 5.3   |
-| **MSSQL Native Vectors** | SQL Server 2025+        | -        |
-| **Neo4j Driver**         | neo4j                   | >= 6.1   |
-| **Embeddings**           | sentence-transformers   | latest   |
-| **Reranker**             | FlagEmbedding           | latest   |
-| **Testing**              | pytest, httpx           | latest   |
-| **Container**            | Docker + docker-compose | latest   |
+| Category          | Technology              | Version  |
+| ----------------- | ----------------------- | -------- |
+| **API Framework** | FastAPI                 | >= 0.115 |
+| **Server**        | Uvicorn                 | >= 0.32  |
+| **Database ORM**  | SQLAlchemy              | >= 2.0   |
+| **MSSQL Driver**  | pyodbc                  | >= 5.3   |
+| **Neo4j Driver**  | neo4j                   | >= 6.1   |
+| **Embeddings**    | sentence-transformers   | latest   |
+| **Reranker**      | FlagEmbedding           | latest   |
+| **Testing**       | pytest, httpx           | latest   |
+| **Container**     | Docker + docker-compose | latest   |
 
 ---
 
@@ -119,13 +133,12 @@ sequenceDiagram
 
 ### Endpoints
 
-| Method | Endpoint   | Description                     |
-| ------ | ---------- | ------------------------------- |
-| `POST` | `/search`  | Unified semantic search (MSSQL) |
-| `GET`  | `/sources` | List available sources          |
-| `POST` | `/ingest`  | Ingest document                 |
-| `GET`  | `/health`  | Health check                    |
-| `GET`  | `/docs`    | Swagger UI                      |
+| Method | Endpoint   | Description                |
+| ------ | ---------- | -------------------------- |
+| `POST` | `/search`  | Semantic search for papers |
+| `GET`  | `/sources` | List available sources     |
+| `GET`  | `/health`  | Health check               |
+| `GET`  | `/docs`    | Swagger UI                 |
 
 ### Future Endpoints
 
@@ -142,21 +155,25 @@ class SearchRequest(BaseModel):
     query: str                           # Natural language query
     top_k: int = Field(default=10, ge=1, le=100)
     use_reranker: bool = True
-    filters: dict | None = None          # Optional metadata filters
-    min_score: float | None = None       # Minimum similarity threshold
+    filters: dict | None = None          # Optional filters (year, venue)
+    min_score: float | None = None     # Minimum similarity threshold
 
 # Response
-class SearchResult(BaseModel):
+class PaperResult(BaseModel):
     id: str
-    content: str
-    source: Literal["mssql"]
+    title: str
+    abstract: str | None
+    authors: list[str]
+    year: int | None
+    venue: str | None
+    keywords: list[str]
+    source: str
     score: float
     metadata: dict
-    rerank_score: float | None = None
 
 class SearchResponse(BaseModel):
     query: str
-    results: list[SearchResult]
+    results: list[PaperResult]
     total: int
     latency_ms: float
     sources_queried: list[str]
@@ -167,26 +184,34 @@ class SearchResponse(BaseModel):
 ```json
 // POST /search
 {
-  "query": "machine learning algorithms for classification",
+  "query": "deep learning for healthcare",
   "top_k": 10,
-  "use_reranker": true,
   "filters": {
-    "category": "research_papers"
+    "min_year": 2020,
+    "venue": "NeurIPS"
   }
 }
 ```
 
 ```json
 {
-  "query": "machine learning algorithms for classification",
+  "query": "deep learning for healthcare",
   "results": [
     {
-      "id": "doc_123",
-      "content": "Support Vector Machines are supervised learning models...",
+      "id": "53e99784b7602d9701f3ffdd",
+      "title": "Deep Learning for Medical Image Analysis",
+      "abstract": "We propose a novel...",
+      "authors": ["John Doe", "Jane Smith"],
+      "year": 2021,
+      "venue": "NeurIPS",
+      "keywords": ["deep learning", "medical imaging"],
       "source": "mssql",
-      "score": 0.92,
-      "metadata": { "title": "SVM Overview", "category": "research_papers" },
-      "rerank_score": 0.98
+      "score": 0.95,
+      "metadata": {
+        "year": 2021,
+        "venue": "NeurIPS",
+        "authors": ["John Doe", "Jane Smith"]
+      }
     }
   ],
   "total": 10,
@@ -202,23 +227,13 @@ class SearchResponse(BaseModel):
 ### Reciprocal Rank Fusion (RRF) Formula
 
 ```python
-def rrf_fusion(results_list: list[list[SearchResult]], k: int = 60) -> list[SearchResult]:
-    """
-    Reciprocal Rank Fusion formula:
-    RRF(d) = Σ 1/(k + rank(d))
-
-    Where:
-    - d = document
-    - k = constant (typically 60)
-    - rank(d) = position of document in source ranking
-    """
+def rrf_fusion(results_list: list[list[PaperResult]], k: int = 60) -> list[PaperResult]:
     doc_scores: dict[str, float] = defaultdict(float)
 
     for results in results_list:
-        for rank, doc in enumerate(results, start=1):
-            doc_scores[doc.id] += 1 / (k + rank)
+        for rank, paper in enumerate(results, start=1):
+            doc_scores[paper.id] += 1 / (k + rank)
 
-    # Sort by fused score descending
     fused = sorted(doc_scores.items(), key=lambda x: x[1], reverse=True)
     return fused
 ```
@@ -236,7 +251,7 @@ graph LR
     subgraph "RRF Merge"
         MSSQL1 --> RRF[RRF Merger<br/>k=60]
         N4J1 --> RRF
-        K1 --> RRF
+        H1 --> RRF
         RRF --> RRF20[Top-50<br/>Merged]
     end
 
@@ -262,65 +277,47 @@ SemanticSearchEngine/
 │   │
 │   ├── api/
 │   │   ├── __init__.py
-│   │   ├── router.py          # Main API router
-│   │   ├── schemas.py         # Request/Response models
+│   │   ├── router.py              # Main API router
+│   │   ├── schemas.py             # Request/Response models
 │   │   └── endpoints/
 │   │       ├── __init__.py
-│   │       ├── search.py      # /search endpoints
-│   │       ├── ingest.py      # /ingest endpoint
-│   │       └── health.py      # /health endpoint
+│   │       ├── search.py          # /search endpoints
+│   │       └── health.py          # /health endpoint
 │   │
 │   ├── services/
 │   │   ├── __init__.py
-│   │   ├── embedding.py          # Embedding generation
+│   │   ├── embedding.py           # Embedding generation
 │   │   ├── reranker.py           # BGE reranker service
 │   │   └── search/
 │   │       ├── __init__.py
 │   │       ├── router.py          # Query routing
 │   │       ├── merger.py          # RRF implementation
-│   │       ├── mssql_search.py    # MSSQL vector search
-│   │       ├── neo4j_search.py    # Neo4j vector search
-│   │       └── hbase_search.py    # HBase API search
-│   │
-│   ├── repositories/
-│   │   ├── __init__.py
-│   │   ├── base.py               # Base repository
-│   │   ├── mssql.py              # MSSQL data access
-│   │   └── neo4j.py              # Neo4j data access
+│   │       ├── mssql_search.py    # MSSQL paper search
+│   │       ├── neo4j_search.py    # Neo4j citation search
+│   │       └── hbase_search.py    # HBase metrics search
 │   │
 │   ├── models/
 │   │   ├── __init__.py
-│   │   └── database.py           # SQLAlchemy models
+│   │   └── database.py            # SQLAlchemy models (Paper, Author, Venue)
 │   │
 │   └── db/
 │       ├── __init__.py
-│       ├── session.py            # Database sessions
-│       ├── mssql.py              # MSSQL connection
-│       └── neo4j.py              # Neo4j driver
+│       └── init.py                # Database initializers
 │
-├── alembic/
-│   ├── env.py
-│   ├── script.py.mako
-│   └── versions/
-│       └── 001_initial.py
-│
-├── tests/
-│   ├── __init__.py
-│   ├── conftest.py
-│   ├── test_search.py
-│   ├── test_rrf.py
-│   └── test_reranker.py
+├── data/
+│   ├── README.md
+│   └── dblp_demo.json             # DBLP dataset (~619K papers)
 │
 ├── scripts/
-│   ├── create_indexes.sql        # MSSQL vector indexes
-│   └── seed_data.py              # Test data seeding
+│   └── init_db.py                 # Database initialization script
 │
-├── config.py                      # Root-level config
+├── tests/
+├── alembic/
 ├── pyproject.toml
 ├── Dockerfile
 ├── docker-compose.yml
-├── docker.env
-└── Makefile
+├── README.md
+└── Plan.md
 ```
 
 ---
@@ -329,106 +326,175 @@ SemanticSearchEngine/
 
 ### Phase 1: Foundation & MSSQL (Current Focus)
 
-- [x] Set up FastAPI project structure with Alembic
-- [ ] Configure MSSQL connections with native vector support
-- [ ] Create base SQLAlchemy models and migrations
-- [ ] Implement MSSQL vector search with native VECTOR type
-- [ ] Implement health check endpoint
+- [x] Set up FastAPI project structure
+- [x] Configure MSSQL connections
+- [x] Create SQLAlchemy models (Paper, Author, Venue)
+- [x] Implement MSSQL paper search
+- [x] Load DBLP dataset via init script
+- [ ] Set up health check endpoint
 - [ ] Set up Docker + Makefile
 
-### Phase 2: Neo4j Integration (Future)
+### Phase 2: Neo4j Integration
 
-- [ ] Design Neo4j node/relationship schema
-- [ ] Create vector indexes in Neo4j
-- [ ] Implement hybrid Cypher + vector search
+- [x] Neo4j initializer for citation graph
+- [ ] Build citation relationships (CITES)
+- [ ] Build co-authorship relationships (COLLABORATES)
+- [ ] Implement Neo4j citation search
 - [ ] Add Neo4j-specific search endpoint
 
-### Phase 3: HBase API Integration (Future)
+### Phase 3: HBase API Integration
 
-- [ ] Design HBase API client
-- [ ] Implement data access patterns
-- [ ] Create semantic search over analytics data
+- [x] HBase initializer (placeholder)
+- [ ] Implement metrics table
+- [ ] Add citation count tracking
+- [ ] Implement HBase metrics search
 
-### Phase 4: Unified Search + RRF (Future)
+### Phase 4: Unified Search + RRF
 
 - [ ] Implement query router (parallel execution)
 - [ ] Implement RRF merger
 - [ ] Create unified `/search` endpoint
 
-### Phase 5: Reranking Integration (Future)
+### Phase 5: Reranking Integration
 
 - [ ] Integrate BGE reranker
 - [ ] Add reranking toggle to API
-- [ ] Implement A/B testing infrastructure
 
-### Phase 6: Evaluation & Demo (Future)
+### Phase 6: Evaluation & Demo
 
-- [ ] Set up DeepEval metrics
 - [ ] Retrieval accuracy evaluation
 - [ ] Latency benchmarks
-- [ ] Load testing with k6
 
 ---
 
-## **MSSQL Schema Design (SQL Server 2025+ Native Vectors)**
+## **MSSQL Schema Design (Academic Papers)**
 
 ```sql
--- Documents table
-CREATE TABLE documents (
-    id VARCHAR(36) PRIMARY KEY DEFAULT NEWID(),
-    content TEXT NOT NULL,
-    title VARCHAR(500),
-    metadata JSON,
+-- Venues table
+CREATE TABLE venues (
+    id VARCHAR(36) PRIMARY KEY,
+    name VARCHAR(500) NOT NULL,
+    type VARCHAR(50)
+);
+
+-- Authors table
+CREATE TABLE authors (
+    id VARCHAR(36) PRIMARY KEY,
+    name VARCHAR(500) NOT NULL,
+    affiliation VARCHAR(500),
+    orcid VARCHAR(50)
+);
+
+-- Papers table
+CREATE TABLE papers (
+    id VARCHAR(36) PRIMARY KEY,
+    title TEXT NOT NULL,
+    abstract TEXT,
+    year INT,
+    venue_id VARCHAR(36) REFERENCES venues(id),
+    keywords JSON,
+    doi VARCHAR(200),
     created_at DATETIME2 DEFAULT GETUTCDATE(),
     updated_at DATETIME2 DEFAULT GETUTCDATE()
 );
 
+-- Paper-Author relationship
+CREATE TABLE paper_authors (
+    id VARCHAR(36) PRIMARY KEY,
+    paper_id VARCHAR(36) REFERENCES papers(id),
+    author_id VARCHAR(36) REFERENCES authors(id),
+    author_order INT
+);
+
+-- Paper references (citations)
+CREATE TABLE paper_references (
+    id VARCHAR(36) PRIMARY KEY,
+    paper_id VARCHAR(36) REFERENCES papers(id),
+    referenced_paper_id VARCHAR(36) REFERENCES papers(id),
+    reference_external_id VARCHAR(100)
+);
+
 -- Embeddings table with native vector support
 CREATE TABLE embeddings (
-    id VARCHAR(36) PRIMARY KEY DEFAULT NEWID(),
-    document_id VARCHAR(36) REFERENCES documents(id) ON DELETE CASCADE,
-    embedding VECTOR(1536),  -- BGE-M3: 1536 dimensions
+    id VARCHAR(36) PRIMARY KEY,
+    paper_id VARCHAR(36) REFERENCES papers(id),
+    embedding VECTOR(1536),
     model_name VARCHAR(100) DEFAULT 'BGE-M3',
     created_at DATETIME2 DEFAULT GETUTCDATE()
 );
 
--- Create HNSW vector index for fast similarity search
-CREATE INDEX idx_embeddings_vector_hnsw
-ON embeddings USING HNSW (embedding VECTOR_COSINE_DISTANCE)
-WITH (m = 16, ef_construction = 200);
-
 -- Search history for analytics
 CREATE TABLE search_history (
-    id BIGINT IDENTITY PRIMARY KEY,
-    query VARCHAR(1000) NOT NULL,
+    id VARCHAR(36) PRIMARY KEY,
+    query TEXT NOT NULL,
     sources_queried VARCHAR(100),
     results_count INT,
     latency_ms INT,
-    user_id VARCHAR(100),
     created_at DATETIME2 DEFAULT GETUTCDATE()
 );
 ```
 
-### Similarity Search Query
+### Search Query
 
 ```sql
--- Vector similarity search with cosine distance
 SELECT TOP (@top_k)
-    d.id,
-    d.content,
-    d.title,
-    d.metadata,
+    p.id, p.title, p.abstract, p.year,
+    v.name AS venue,
+    STRING_AGG(a.name, ', ') AS authors,
     1 - (e.embedding <=> @query_vector) AS similarity_score
-FROM documents d
-INNER JOIN embeddings e ON d.id = e.document_id
-WHERE e.embedding <=> @query_vector < @threshold  -- Cosine distance threshold
-ORDER BY e.embedding <=> @query_vector;
+FROM papers p
+LEFT JOIN venues v ON p.venue_id = v.id
+LEFT JOIN paper_authors pa ON p.id = pa.paper_id
+LEFT JOIN authors a ON pa.author_id = a.id
+LEFT JOIN embeddings e ON p.id = e.paper_id
+WHERE p.title LIKE '%' + @query + '%'
+   OR p.abstract LIKE '%' + @query + '%'
+GROUP BY p.id, p.title, p.abstract, p.year, v.name, e.embedding
+ORDER BY similarity_score DESC;
 ```
 
 ---
 
-## **Open Questions**
+## **Neo4j Graph Schema**
 
-1. **Embedding Model**: BGE-M3 (multilingual, 1536 dim) or a different model?
-2. **Data to Index**: Do you have existing documents to ingest, or should I create synthetic test data?
-3. **Authentication**: Do you need API authentication (JWT, API keys) or is it internal-only?
+```cypher
+// Nodes
+(:Paper {id, title, year})
+(:Author {id, name, affiliation})
+(:Venue {id, name, type})
+
+// Relationships
+(p1:Paper)-[:CITES]->(p2:Paper)
+(a:Author)-[:WRITES {order: Int}]->(p:Paper)
+(a1:Author)-[:COLLABORATES {count: Int}]-(a2:Author)
+(p:Paper)-[:PUBLISHED_IN]->(v:Venue)
+```
+
+### Example Queries
+
+```cypher
+// Papers citing a specific paper
+MATCH (p1:Paper)-[:CITES]->(p2:Paper {id: 'target_id'})
+RETURN p1
+
+// Co-authors of an author
+MATCH (a1:Author)-[:COLLABORATES]->(a2:Author)
+WHERE a1.name = 'John Doe'
+RETURN a2
+
+// Citation path between two papers
+MATCH path = (p1:Paper)-[:CITES*1..3]->(p2:Paper)
+WHERE p1.id = 'source' AND p2.id = 'target'
+RETURN path
+```
+
+---
+
+## **Search Scenarios**
+
+| Query                               | Primary Search                   | Graph Enhancement                |
+| ----------------------------------- | -------------------------------- | -------------------------------- |
+| "machine learning healthcare"       | MSSQL (full-text)                | Filter by citation count (HBase) |
+| "papers citing transformers"        | MSSQL + Neo4j (CITES)            | Rank by impact                   |
+| "NLP researchers at MIT"            | MSSQL (author/venue)             | Neo4j (co-authorship)            |
+| "highly cited deep learning papers" | MSSQL + HBase (citation metrics) | Neo4j (citation graph)           |

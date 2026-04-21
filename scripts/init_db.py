@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 import argparse
+import os
 import sys
 
 from app.db.init import MSSQLInitializer, Neo4jInitializer, HBaseInitializer
@@ -12,8 +13,12 @@ INITIALIZERS: dict[str, type[BaseDBInitializer]] = {
     "hbase": HBaseInitializer,
 }
 
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+PROJECT_ROOT = os.path.dirname(SCRIPT_DIR)
+DEFAULT_DATA_PATH = os.path.join(PROJECT_ROOT, "data", "dblp_demo.json")
 
-def init_database(db_type: str) -> int:
+
+def init_database(db_type: str, data_path: str | None = None) -> int:
     if db_type not in INITIALIZERS:
         print(f"Unknown database type: {db_type}")
         return 1
@@ -25,7 +30,7 @@ def init_database(db_type: str) -> int:
         print(f"Cannot connect to {db_type}. Check configuration.")
         return 1
 
-    result = initializer.initialize()
+    result = initializer.initialize(data_path=data_path)
     print(result.message)
     return 0
 
@@ -43,6 +48,21 @@ def main():
         action="store_true",
         help="Only check connection, don't create anything",
     )
+    parser.add_argument(
+        "--load-data",
+        action="store_true",
+        help="Load DBLP dataset into MSSQL and build Neo4j graph",
+    )
+    parser.add_argument(
+        "--drop-tables",
+        action="store_true",
+        help="Drop existing tables before creating",
+    )
+    parser.add_argument(
+        "--data-path",
+        default=DEFAULT_DATA_PATH,
+        help="Path to DBLP JSON file",
+    )
 
     args = parser.parse_args()
 
@@ -53,14 +73,36 @@ def main():
             print(f"{db_type}: {status}")
         return 0
 
+    if args.drop_tables:
+        if args.db == "mssql" or args.db == "all":
+            print("Dropping MSSQL tables...")
+            initializer = MSSQLInitializer()
+            if initializer.check_connection():
+                initializer.drop_tables()
+        if args.db == "neo4j" or args.db == "all":
+            print("Note: Neo4j graph can be cleared via Neo4j Browser (MATCH (n) DETACH DELETE n)")
+        if args.db == "all":
+            return 0
+
+    data_path = args.data_path if args.load_data else None
+
     if args.db == "all":
         success = True
-        for db_type in INITIALIZERS.keys():
-            if init_database(db_type) != 0:
+        if args.load_data:
+            print("Loading DBLP data into MSSQL...")
+            if init_database("mssql", data_path) != 0:
                 success = False
+            print("\nBuilding Neo4j citation graph...")
+            if init_database("neo4j", data_path) != 0:
+                success = False
+            init_database("hbase", data_path)
+        else:
+            for db_type in INITIALIZERS.keys():
+                if init_database(db_type) != 0:
+                    success = False
         return 0 if success else 1
 
-    return init_database(args.db)
+    return init_database(args.db, data_path)
 
 
 if __name__ == "__main__":

@@ -10,9 +10,14 @@ class SearchRequest(BaseModel):
     min_score: Optional[float] = Field(default=None, ge=0.0, le=1.0)
 
 
-class SearchResult(BaseModel):
+class PaperResult(BaseModel):
     id: str
-    content: str
+    title: str
+    abstract: Optional[str] = None
+    authors: list[str] = []
+    year: Optional[int] = None
+    venue: Optional[str] = None
+    keywords: list[str] = []
     source: str = "mssql"
     score: float
     metadata: Optional[dict] = None
@@ -20,21 +25,10 @@ class SearchResult(BaseModel):
 
 class SearchResponse(BaseModel):
     query: str
-    results: list[SearchResult]
+    results: list[PaperResult]
     total: int
     latency_ms: float
     sources_queried: list[str]
-
-
-class IngestRequest(BaseModel):
-    content: str = Field(..., min_length=1)
-    title: Optional[str] = None
-    metadata: Optional[dict] = None
-
-
-class IngestResponse(BaseModel):
-    id: str
-    message: str
 
 
 class HealthResponse(BaseModel):

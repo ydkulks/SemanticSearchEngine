@@ -1,7 +1,8 @@
 from typing import Optional
+import json
 
 
-def mssql_vector_search(
+def mssql_paper_search(
     db,
     query: str,
     top_k: int = 10,
@@ -9,31 +10,51 @@ def mssql_vector_search(
     min_score: Optional[float] = None,
 ) -> list[dict]:
     from sqlalchemy import text
-    import json
 
     filter_conditions = ""
     params = {"query": query, "top_k": top_k}
 
     if filters:
-        for key, value in filters.items():
-            filter_conditions += f""" AND JSON_VALUE(d.metadata, '$.{key}') = :
-                            {key}"""
-            params[key] = str(value)
-
-    if min_score is not None:
-        filter_conditions += " AND score >= :min_score"
-        params["min_score"] = min_score
+        if "year" in filters:
+            filter_conditions += " AND p.year = :year"
+            params["year"] = filters["year"]
+        if "min_year" in filters:
+            filter_conditions += " AND p.year >= :min_year"
+            params["min_year"] = filters["min_year"]
+        if "max_year" in filters:
+            filter_conditions += " AND p.year <= :max_year"
+            params["max_year"] = filters["max_year"]
+        if "venue" in filters:
+            filter_conditions += " AND v.name LIKE :venue"
+            params["venue"] = f"%{filters['venue']}%"
 
     sql = f"""
         SELECT TOP ({top_k})
-            d.id,
-            d.content,
-            d.title,
-            d.metadata,
-            0.0 as score
-        FROM documents d
-        WHERE 1=1 {filter_conditions}
-        ORDER BY d.created_at DESC
+            p.id,
+            p.title,
+            p.abstract,
+            p.year,
+            v.name AS venue,
+            p.keywords,
+            STRING_AGG(a.name, ', ') AS authors,
+            0.0 AS score
+        FROM dbo.papers p
+        LEFT JOIN dbo.venues v ON p.venue_id = v.id
+        LEFT JOIN dbo.paper_authors pa ON p.id = pa.paper_id
+        LEFT JOIN dbo.authors a ON pa.author_id = a.id
+        WHERE p.title LIKE '%' + :query + '%'
+           OR p.abstract LIKE '%' + :query + '%'
+           OR p.keywords LIKE '%' + :query + '%'
+           OR EXISTS (
+               SELECT 1
+               FROM dbo.paper_authors pa2
+               JOIN dbo.authors a2 ON pa2.author_id = a2.id
+               WHERE pa2.paper_id = p.id
+                 AND a2.name LIKE '%' + :query + '%'
+           )
+        {filter_conditions}
+        GROUP BY p.id, p.title, p.abstract, p.year, v.name, p.keywords
+        ORDER BY p.year DESC, p.title
     """
 
     result = db.execute(text(sql), params)
@@ -41,21 +62,43 @@ def mssql_vector_search(
 
     results = []
     for row in rows:
-        metadata = row.metadata
-        if isinstance(metadata, str):
+        keywords = row.keywords
+        if isinstance(keywords, str):
             try:
-                metadata = json.loads(metadata)
-            except Exception as e:
-                print(f"Error parsing metadata: {e}")
-                metadata = {}
+                keywords = json.loads(keywords)
+            except Exception:
+                keywords = []
+
+        authors = row.authors.split(", ") if row.authors else []
+
+        content_parts = [row.title or ""]
+        if row.abstract:
+            content_parts.append(row.abstract)
+        if row.authors:
+            content_parts.append(f"Authors: {row.authors}")
+        if row.year:
+            content_parts.append(f"Year: {row.year}")
+        if row.venue:
+            content_parts.append(f"Venue: {row.venue}")
 
         results.append(
             {
                 "id": row.id,
-                "content": row.content,
+                "title": row.title,
+                "content": " | ".join(content_parts),
+                "abstract": row.abstract,
+                "authors": authors,
+                "year": row.year,
+                "venue": row.venue,
+                "keywords": keywords or [],
                 "source": "mssql",
                 "score": row.score,
-                "metadata": metadata or {},
+                "metadata": {
+                    "year": row.year,
+                    "venue": row.venue,
+                    "authors": authors,
+                    "keywords": keywords or [],
+                },
             }
         )
 
