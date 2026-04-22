@@ -331,8 +331,8 @@ SemanticSearchEngine/
 - [x] Create SQLAlchemy models (Paper, Author, Venue)
 - [x] Implement MSSQL paper search
 - [x] Load DBLP dataset via init script
-- [ ] Set up health check endpoint
-- [ ] Set up Docker + Makefile
+- [x] Set up health check endpoint
+- [x] Set up Docker + Makefile
 
 ### Phase 2: Neo4j Integration
 

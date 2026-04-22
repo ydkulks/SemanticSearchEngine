@@ -34,8 +34,11 @@ docker-up:
 docker-down:
 	docker compose down
 
-init-db:
+init-db-mssql:
 	python scripts/init_db.py --db mssql
+
+init-db-neo4j:
+	python scripts/init_db.py --db neo4j
 
 init-db-all:
 	python scripts/init_db.py --db all

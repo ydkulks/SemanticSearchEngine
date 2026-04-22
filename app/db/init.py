@@ -307,6 +307,8 @@ class MSSQLInitializer(BaseDBInitializer):
 
 
 class Neo4jInitializer(BaseDBInitializer):
+    CHECKPOINT_FILE = ".neo4j_init_checkpoint.json"
+
     def check_connection(self) -> bool:
         try:
             from neo4j import GraphDatabase
@@ -324,100 +326,332 @@ class Neo4jInitializer(BaseDBInitializer):
     def create_tables(self) -> bool:
         return True
 
+    def _load_checkpoint(self) -> Optional[dict]:
+        if os.path.exists(self.CHECKPOINT_FILE):
+            try:
+                with open(self.CHECKPOINT_FILE, "r") as f:
+                    return json.load(f)
+            except Exception:
+                pass
+        return None
+
+    def _save_checkpoint(self, checkpoint: dict):
+        with open(self.CHECKPOINT_FILE, "w") as f:
+            json.dump(checkpoint, f, indent=2)
+
+    def _clear_checkpoint(self):
+        if os.path.exists(self.CHECKPOINT_FILE):
+            os.remove(self.CHECKPOINT_FILE)
+
+    def _get_mssql_engine(self):
+        return create_engine(
+            settings.mssql.connection_url,
+            pool_pre_ping=True,
+        )
+
     def load_citations_from_db(self) -> dict:
         try:
+            import time
+
             from neo4j import GraphDatabase
 
-            engine = create_engine(
-                settings.mssql.connection_url,
-                pool_pre_ping=True,
-            )
+            engine = self._get_mssql_engine()
 
             driver = GraphDatabase.driver(
                 settings.neo4j.uri, auth=(settings.neo4j.username, settings.neo4j.password)
             )
 
-            stats = {"papers": 0, "citations": 0, "coauthorships": 0}
+            batch_size_papers = settings.neo4j.batch_size_papers
+            batch_size_authors = settings.neo4j.batch_size_authors
+            batch_size_citations = settings.neo4j.batch_size_citations
+            batch_size_writes = settings.neo4j.batch_size_writes
+            batch_size_collaborations = settings.neo4j.batch_size_collaborations
 
-            with engine.connect() as conn:
-                papers = conn.execute(text("SELECT id, title FROM papers LIMIT 10000"))
-                paper_ids = {row[0] for row in papers}
-                papers.fetchall()
+            stats = {
+                "papers": 0,
+                "authors": 0,
+                "citations": 0,
+                "writes": 0,
+                "coauthorships": 0,
+            }
 
-                refs = conn.execute(
-                    text("""
-                    SELECT paper_id, referenced_paper_id
-                    FROM paper_references
-                    WHERE referenced_paper_id IS NOT NULL
-                    LIMIT 50000
-                """)
-                )
-                citations = [(r[0], r[1]) for r in refs if r[0] in paper_ids and r[1] in paper_ids]
-                refs.fetchall()
+            checkpoint = self._load_checkpoint()
 
-                coauth = conn.execute(
-                    text("""
-                    SELECT pa1.author_id, pa2.author_id, COUNT(*) as collab_count
-                    FROM paper_authors pa1
-                    JOIN paper_authors pa2 ON pa1.paper_id = pa2.paper_id
-                    WHERE pa1.author_id < pa2.author_id
-                    GROUP BY pa1.author_id, pa2.author_id
-                    HAVING COUNT(*) >= 2
-                    LIMIT 10000
-                """)
-                )
-                coauthorships = [(r[0], r[1], r[2]) for r in coauth]
-                coauth.fetchall()
+            print("Starting Neo4j data load...")
+            start_time = time.time()
 
             with driver.session() as session:
-                for paper_id, title in [
-                    (p[0], p[1])
-                    for p in [
-                        (row[0], row[1])
-                        for row in conn.execute(text("SELECT id, title FROM papers LIMIT 10000"))
-                    ]
-                ]:
-                    session.run(
-                        "MERGE (p:Paper {id: $id}) SET p.title = $title", id=paper_id, title=title
-                    )
-                    stats["papers"] += 1
+                if checkpoint is None:
+                    print("Clearing existing Neo4j data...")
+                    session.run("MATCH (n) DETACH DELETE n")
+                    current_phase = "papers"
+                    offsets = {"papers": 0, "authors": 0, "citations": 0, "writes": 0, "coauthorships": 0}
+                else:
+                    print(f"Resuming from checkpoint (papers: {checkpoint['stats']['papers']:,})...")
+                    current_phase = checkpoint.get("phase", "papers")
+                    offsets = checkpoint.get("offsets", {"papers": 0, "authors": 0, "citations": 0, "writes": 0, "coauthorships": 0})
+                    stats.update(checkpoint.get("stats", stats))
 
-                for src, tgt in citations[:10000]:
-                    session.run(
-                        "MATCH (p1:Paper {id: $src}), (p2:Paper {id: $tgt}) "
-                        "MERGE (p1)-[:CITES]->(p2)",
-                        src=src,
-                        tgt=tgt,
-                    )
-                    stats["citations"] += 1
+                if current_phase in ("papers", "authors", "citations", "writes", "coauthorships"):
+                    checkpoint = {
+                        "phase": current_phase,
+                        "offsets": offsets,
+                        "stats": stats,
+                    }
+                    self._save_checkpoint(checkpoint)
 
-                for a1, a2, count in coauthorships[:5000]:
-                    session.run(
-                        "MERGE (a1:Author {id: $a1}) MERGE (a2:Author {id: $a2}) "
-                        "MERGE (a1)-[:COLLABORATES {count: $count}]-(a2)",
-                        a1=a1,
-                        a2=a2,
-                        count=count,
-                    )
-                    stats["coauthorships"] += 1
+                if current_phase == "papers":
+                    print("Loading Paper nodes...")
+                    with engine.connect() as conn:
+                        offset = offsets["papers"]
+                        while True:
+                            result = conn.execute(
+                                text(f"""
+                                    SELECT id, title FROM papers
+                                    ORDER BY id
+                                    OFFSET {offset} ROWS
+                                    FETCH NEXT {batch_size_papers} ROWS ONLY
+                                """)
+                            )
+                            rows = result.fetchall()
+                            if not rows:
+                                break
+
+                            for row in rows:
+                                session.run(
+                                    "MERGE (p:Paper {id: $id}) SET p.title = $title",
+                                    id=row[0],
+                                    title=row[1],
+                                )
+                                stats["papers"] += 1
+
+                            offset += batch_size_papers
+                            offsets["papers"] = offset
+                            elapsed = time.time() - start_time
+                            rate = stats["papers"] / elapsed if elapsed > 0 else 0
+                            print(f"  Loaded {stats['papers']:,} papers... ({rate:.0f}/sec)")
+
+                            checkpoint["offsets"] = offsets
+                            checkpoint["stats"] = stats.copy()
+                            self._save_checkpoint(checkpoint)
+
+                    current_phase = "authors"
+                    offsets["authors"] = 0
+                    checkpoint["phase"] = current_phase
+                    checkpoint["offsets"] = offsets
+                    self._save_checkpoint(checkpoint)
+
+                if current_phase == "authors":
+                    print("Loading Author nodes...")
+                    with engine.connect() as conn:
+                        offset = offsets["authors"]
+                        while True:
+                            result = conn.execute(
+                                text(f"""
+                                    SELECT id, name, affiliation FROM authors
+                                    ORDER BY id
+                                    OFFSET {offset} ROWS
+                                    FETCH NEXT {batch_size_authors} ROWS ONLY
+                                """)
+                            )
+                            rows = result.fetchall()
+                            if not rows:
+                                break
+
+                            for row in rows:
+                                session.run(
+                                    "MERGE (a:Author {id: $id}) SET a.name = $name, a.affiliation = $affiliation",
+                                    id=row[0],
+                                    name=row[1],
+                                    affiliation=row[2],
+                                )
+                                stats["authors"] += 1
+
+                            offset += batch_size_authors
+                            offsets["authors"] = offset
+                            elapsed = time.time() - start_time
+                            rate = stats["authors"] / elapsed if elapsed > 0 else 0
+                            print(f"  Loaded {stats['authors']:,} authors... ({rate:.0f}/sec)")
+
+                            checkpoint["offsets"] = offsets
+                            checkpoint["stats"] = stats.copy()
+                            self._save_checkpoint(checkpoint)
+
+                    current_phase = "citations"
+                    offsets["citations"] = 0
+                    checkpoint["phase"] = current_phase
+                    checkpoint["offsets"] = offsets
+                    self._save_checkpoint(checkpoint)
+
+                if current_phase == "citations":
+                    print("Loading CITES relationships...")
+                    with engine.connect() as conn:
+                        offset = offsets["citations"]
+                        while True:
+                            result = conn.execute(
+                                text(f"""
+                                    SELECT DISTINCT paper_id, referenced_paper_id
+                                    FROM paper_references
+                                    WHERE referenced_paper_id IS NOT NULL
+                                    ORDER BY paper_id
+                                    OFFSET {offset} ROWS
+                                    FETCH NEXT {batch_size_citations} ROWS ONLY
+                                """)
+                            )
+                            rows = result.fetchall()
+                            if not rows:
+                                break
+
+                            for row in rows:
+                                session.run(
+                                    """
+                                    MATCH (p1:Paper {id: $src}), (p2:Paper {id: $tgt})
+                                    MERGE (p1)-[:CITES]->(p2)
+                                    """,
+                                    src=row[0],
+                                    tgt=row[1],
+                                )
+                                stats["citations"] += 1
+
+                            offset += batch_size_citations
+                            offsets["citations"] = offset
+                            elapsed = time.time() - start_time
+                            rate = stats["citations"] / elapsed if elapsed > 0 else 0
+                            print(f"  Loaded {stats['citations']:,} citations... ({rate:.0f}/sec)")
+
+                            checkpoint["offsets"] = offsets
+                            checkpoint["stats"] = stats.copy()
+                            self._save_checkpoint(checkpoint)
+
+                    current_phase = "writes"
+                    offsets["writes"] = 0
+                    checkpoint["phase"] = current_phase
+                    checkpoint["offsets"] = offsets
+                    self._save_checkpoint(checkpoint)
+
+                if current_phase == "writes":
+                    print("Loading WRITES relationships...")
+                    with engine.connect() as conn:
+                        offset = offsets["writes"]
+                        while True:
+                            result = conn.execute(
+                                text(f"""
+                                    SELECT pa.paper_id, pa.author_id, pa.author_order
+                                    FROM paper_authors pa
+                                    ORDER BY pa.paper_id, pa.author_order
+                                    OFFSET {offset} ROWS
+                                    FETCH NEXT {batch_size_writes} ROWS ONLY
+                                """)
+                            )
+                            rows = result.fetchall()
+                            if not rows:
+                                break
+
+                            for row in rows:
+                                session.run(
+                                    """
+                                    MATCH (a:Author {id: $author_id}), (p:Paper {id: $paper_id})
+                                    MERGE (a)-[:WRITES {order: $order}]->(p)
+                                    """,
+                                    author_id=row[1],
+                                    paper_id=row[0],
+                                    order=row[2],
+                                )
+                                stats["writes"] += 1
+
+                            offset += batch_size_writes
+                            offsets["writes"] = offset
+                            elapsed = time.time() - start_time
+                            rate = stats["writes"] / elapsed if elapsed > 0 else 0
+                            print(f"  Loaded {stats['writes']:,} writes... ({rate:.0f}/sec)")
+
+                            checkpoint["offsets"] = offsets
+                            checkpoint["stats"] = stats.copy()
+                            self._save_checkpoint(checkpoint)
+
+                    current_phase = "coauthorships"
+                    offsets["coauthorships"] = 0
+                    checkpoint["phase"] = current_phase
+                    checkpoint["offsets"] = offsets
+                    self._save_checkpoint(checkpoint)
+
+                if current_phase == "coauthorships":
+                    print("Loading COLLABORATES relationships...")
+                    with engine.connect() as conn:
+                        offset = offsets["coauthorships"]
+                        while True:
+                            result = conn.execute(
+                                text(f"""
+                                    SELECT pa1.author_id, pa2.author_id, COUNT(*) as collab_count
+                                    FROM paper_authors pa1
+                                    JOIN paper_authors pa2 ON pa1.paper_id = pa2.paper_id
+                                    WHERE pa1.author_id < pa2.author_id
+                                    GROUP BY pa1.author_id, pa2.author_id
+                                    HAVING COUNT(*) >= 2
+                                    ORDER BY pa1.author_id
+                                    OFFSET {offset} ROWS
+                                    FETCH NEXT {batch_size_collaborations} ROWS ONLY
+                                """)
+                            )
+                            rows = result.fetchall()
+                            if not rows:
+                                break
+
+                            for row in rows:
+                                session.run(
+                                    """
+                                    MATCH (a1:Author {id: $a1}), (a2:Author {id: $a2})
+                                    MERGE (a1)-[:COLLABORATES {count: $count}]-(a2)
+                                    """,
+                                    a1=row[0],
+                                    a2=row[1],
+                                    count=row[2],
+                                )
+                                stats["coauthorships"] += 1
+
+                            offset += batch_size_collaborations
+                            offsets["coauthorships"] = offset
+                            elapsed = time.time() - start_time
+                            rate = stats["coauthorships"] / elapsed if elapsed > 0 else 0
+                            print(f"  Loaded {stats['coauthorships']:,} coauthorships... ({rate:.0f}/sec)")
+
+                            checkpoint["offsets"] = offsets
+                            checkpoint["stats"] = stats.copy()
+                            self._save_checkpoint(checkpoint)
 
             driver.close()
             engine.dispose()
+
+            self._clear_checkpoint()
+
+            elapsed = time.time() - start_time
             print(
-                f"Neo4j: Loaded {stats['papers']} papers, {stats['citations']} citations, {stats['coauthorships']} coauthorships"
+                f"Neo4j: Loaded {stats['papers']:,} papers, {stats['authors']:,} authors, "
+                f"{stats['citations']:,} citations, {stats['writes']:,} writes, "
+                f"{stats['coauthorships']:,} coauthorships ({elapsed:.1f}s)"
             )
             return stats
 
         except Exception as e:
             print(f"Neo4j loading failed: {e}")
-            return {"papers": 0, "citations": 0, "coauthorships": 0}
+            import traceback
+            traceback.print_exc()
+            return {
+                "papers": 0,
+                "authors": 0,
+                "citations": 0,
+                "writes": 0,
+                "coauthorships": 0,
+            }
 
     def initialize(self, data_path: Optional[str] = None) -> InitResult:
         try:
             result = self.load_citations_from_db()
             return InitResult(
                 tables_created=True,
-                message=f"Neo4j: Loaded {result['papers']} papers, {result['citations']} citations, {result['coauthorships']} coauthorships",
+                message=f"Neo4j: Loaded {result['papers']:,} papers, {result['authors']:,} authors, "
+                f"{result['citations']:,} citations, {result['writes']:,} writes, "
+                f"{result['coauthorships']:,} coauthorships",
             )
         except Exception as e:
             return InitResult(

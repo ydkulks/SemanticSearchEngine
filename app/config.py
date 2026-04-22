@@ -1,5 +1,3 @@
-from typing import Optional
-
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -31,6 +29,11 @@ class Neo4jConfig(BaseSettings):
     uri: str = ""
     username: str = ""
     password: str = ""
+    batch_size_papers: int = 5000
+    batch_size_authors: int = 5000
+    batch_size_citations: int = 10000
+    batch_size_writes: int = 10000
+    batch_size_collaborations: int = 5000
 
     model_config = SettingsConfigDict(
         env_file=".env",
