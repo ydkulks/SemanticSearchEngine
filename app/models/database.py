@@ -3,7 +3,7 @@ from typing import Optional
 from uuid import uuid4
 
 from sqlalchemy import Column, String, Text, DateTime, Integer, ForeignKey, JSON
-from sqlalchemy.orm import declarative_base
+from sqlalchemy.orm import declarative_base, relationship
 
 Base = declarative_base()
 
@@ -15,6 +15,8 @@ class Venue(Base):
     name = Column(String(500), nullable=False)
     type = Column(String(50), nullable=True)
 
+    papers = relationship("Paper", back_populates="venue")
+
 
 class Author(Base):
     __tablename__ = "authors"
@@ -23,6 +25,12 @@ class Author(Base):
     name = Column(String(500), nullable=False)
     affiliation = Column(Text, nullable=True)
     orcid = Column(String(50), nullable=True)
+
+    papers = relationship(
+        "Paper",
+        secondary="paper_authors",
+        back_populates="authors",
+    )
 
 
 class Paper(Base):
@@ -37,6 +45,13 @@ class Paper(Base):
     doi = Column(String(200), nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    venue = relationship("Venue", back_populates="papers")
+    authors = relationship(
+        "Author",
+        secondary="paper_authors",
+        back_populates="papers",
+    )
 
 
 class PaperAuthor(Base):

@@ -2,7 +2,7 @@ from typing import Optional
 from pydantic import BaseModel, Field
 
 
-class SearchRequest(BaseModel):
+class SearchRequestDTO(BaseModel):
     query: str = Field(..., min_length=1, max_length=1000)
     top_k: int = Field(default=10, ge=1, le=100)
     use_reranker: bool = True
@@ -10,7 +10,7 @@ class SearchRequest(BaseModel):
     min_score: Optional[float] = Field(default=None, ge=0.0, le=1.0)
 
 
-class PaperResult(BaseModel):
+class PaperResultDTO(BaseModel):
     id: str
     title: str
     abstract: Optional[str] = None
@@ -23,25 +23,25 @@ class PaperResult(BaseModel):
     metadata: Optional[dict] = None
 
 
-class SearchResponse(BaseModel):
+class SearchResponseDTO(BaseModel):
     query: str
-    results: list[PaperResult]
+    results: list[PaperResultDTO]
     total: int
     latency_ms: float
     sources_queried: list[str]
 
 
-class HealthResponse(BaseModel):
+class HealthResponseDTO(BaseModel):
     status: str
     mssql: str
     neo4j: Optional[str] = None
 
 
-class SourceInfo(BaseModel):
+class SourceInfoDTO(BaseModel):
     name: str
     type: str
     status: str
 
 
-class SourcesResponse(BaseModel):
-    sources: list[SourceInfo]
+class SourcesResponseDTO(BaseModel):
+    sources: list[SourceInfoDTO]

@@ -3,15 +3,15 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
 from app.dependencies import get_db
-from app.api.schemas import SearchRequest, SearchResponse, PaperResult
+from app.api.dto import SearchRequestDTO, SearchResponseDTO, PaperResultDTO
 from app.services.search.mssql_search import mssql_paper_search
 
 router = APIRouter()
 
 
-@router.post("/search", response_model=SearchResponse)
+@router.post("/search", response_model=SearchResponseDTO)
 def search_papers(
-    request: SearchRequest,
+    request: SearchRequestDTO,
     db: Session = Depends(get_db),
 ):
     start_time = time.time()
@@ -26,9 +26,9 @@ def search_papers(
 
     latency_ms = (time.time() - start_time) * 1000
 
-    return SearchResponse(
+    return SearchResponseDTO(
         query=request.query,
-        results=[PaperResult(**r) for r in results],
+        results=[PaperResultDTO(**r) for r in results],
         total=len(results),
         latency_ms=round(latency_ms, 2),
         sources_queried=["mssql"],
