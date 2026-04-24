@@ -324,7 +324,7 @@ SemanticSearchEngine/
 
 ## **Implementation Phases**
 
-### Phase 1: Foundation & MSSQL (Current Focus)
+### Phase 1: Foundation & MSSQL
 
 - [x] Set up FastAPI project structure
 - [x] Configure MSSQL connections
@@ -333,14 +333,16 @@ SemanticSearchEngine/
 - [x] Load DBLP dataset via init script
 - [x] Set up health check endpoint
 - [x] Set up Docker + Makefile
+- [x] Embedding generation script
 
 ### Phase 2: Neo4j Integration
 
 - [x] Neo4j initializer for citation graph
-- [ ] Build citation relationships (CITES)
-- [ ] Build co-authorship relationships (COLLABORATES)
-- [ ] Implement Neo4j citation search
-- [ ] Add Neo4j-specific search endpoint
+- [x] Build citation relationships (CITES)
+- [x] Build co-authorship relationships (COLLABORATES)
+- [x] Implement Neo4j citation search
+- [x] Add Neo4j-specific search endpoint
+- [x] Embedding generation script
 
 ### Phase 3: HBase API Integration
 
