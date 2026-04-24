@@ -4,7 +4,7 @@ from pydantic import BaseModel, Field
 
 class Neo4jSearchRequestDTO(BaseModel):
     query: str = Field(..., min_length=1, max_length=1000)
-    search_type: str = Field(default="citations", description="citations|coauthors|related")
+    search_type: str = Field(default="citations", description="citations|cited_by|coauthors|related|papers")
     top_k: int = Field(default=10, ge=1, le=100)
 
 

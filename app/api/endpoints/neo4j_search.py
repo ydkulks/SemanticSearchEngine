@@ -1,6 +1,6 @@
 import logging
 import time
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from neo4j import Session as Neo4jSession
 from sqlalchemy.orm import Session
 
@@ -34,6 +34,8 @@ def search_neo4j(
             search_type=request.search_type,
             top_k=request.top_k,
         )
+    except ValueError as e:
+        raise HTTPException(status_code=422, detail=str(e))
     except Exception as e:
         logger.error(f"Neo4j search error: {e}")
         results = []

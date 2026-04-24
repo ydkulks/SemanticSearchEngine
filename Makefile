@@ -35,7 +35,10 @@ docker-down:
 	docker compose down
 
 init-db-mssql:
-	python scripts/init_db.py --db mssql
+	python scripts/init_db.py --db mssql --load-data
+
+init-db-mssql-embed:
+	python scripts/generate_embeddings.py --db mssql
 
 init-db-neo4j:
 	python scripts/init_db.py --db neo4j

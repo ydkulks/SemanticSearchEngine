@@ -36,6 +36,13 @@ RETURN DISTINCT related.id AS paper_id, 'RELATED' AS rel_type
 LIMIT $limit
 """
 
+PAPERS_CYPHER = """
+MATCH (p:Paper)
+WHERE p.title CONTAINS $query OR p.abstract CONTAINS $query
+RETURN p.id AS paper_id, 'EXACT' AS rel_type
+LIMIT $limit
+"""
+
 
 def _fetch_papers_from_mssql(
     db: Session,
@@ -138,15 +145,14 @@ def neo4j_paper_search(
             cypher_query = COAUTHORS_CYPHER
         elif search_type == "related":
             cypher_query = RELATED_CYPHER
+        elif search_type == "papers":
+            cypher_query = PAPERS_CYPHER
         else:
-            logger.warning(f"Unknown search_type: {search_type}, defaulting to citations")
-            cypher_query = CITATIONS_CYPHER
+            raise ValueError(f"Unsupported search_type: {search_type}. Valid types: citations, cited_by, coauthors, related, papers")
 
         result = neo4j_session.run(
             cypher_query,
-            query=search_term,
-            search_term=search_term,
-            limit=top_k * 2,
+            parameters={"query": search_term, "search_term": search_term, "limit": top_k * 2},
         )
         records = list(result)
 

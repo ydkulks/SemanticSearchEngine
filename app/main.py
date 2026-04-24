@@ -1,9 +1,12 @@
 from contextlib import asynccontextmanager
+import logging
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.config import settings
 from app.api.router import api_router
+
+logging.getLogger("neo4j").setLevel(logging.ERROR)
 
 
 @asynccontextmanager
