@@ -1,26 +1,23 @@
 import time
-import logging
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
+from sqlalchemy.orm import Session
 
-from app.db.mssql import SessionLocal
-from app.db.neo4j_ import get_neo4j_session_factory
+from app.dependencies import get_db
 from app.api.dto import SearchRequestDTO, SearchResponseDTO, PaperResultDTO
-from app.services.search.hybrid_search import hybrid_search
-
-logger = logging.getLogger(__name__)
+from app.services.search.mssql_search import mssql_paper_search
 
 router = APIRouter()
 
 
 @router.post("/search", response_model=SearchResponseDTO)
-def search_papers(request: SearchRequestDTO):
+def search_mssql(
+    request: SearchRequestDTO,
+    db: Session = Depends(get_db),
+):
     start_time = time.time()
 
-    neo4j_factory = get_neo4j_session_factory()
-
-    results, sources_queried = hybrid_search(
-        mssql_session_factory=SessionLocal,
-        neo4j_session_factory=neo4j_factory,
+    results = mssql_paper_search(
+        db=db,
         query=request.query,
         top_k=request.top_k,
         filters=request.filters,
@@ -34,5 +31,5 @@ def search_papers(request: SearchRequestDTO):
         results=[PaperResultDTO(**r) for r in results],
         total=len(results),
         latency_ms=round(latency_ms, 2),
-        sources_queried=sources_queried or ["hybrid"],
+        sources_queried=["mssql"],
     )

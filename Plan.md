@@ -133,19 +133,15 @@ sequenceDiagram
 
 ### Endpoints
 
-| Method | Endpoint   | Description                |
-| ------ | ---------- | -------------------------- |
-| `POST` | `/search`  | Semantic search for papers |
-| `GET`  | `/sources` | List available sources     |
-| `GET`  | `/health`  | Health check               |
-| `GET`  | `/docs`    | Swagger UI                 |
-
-### Future Endpoints
-
-| Method | Endpoint        | Description       |
-| ------ | --------------- | ----------------- |
-| `POST` | `/search/neo4j` | Neo4j-only search |
-| `POST` | `/search/hbase` | HBase-only search |
+| Method | Endpoint      | Description                     |
+| ------ | ------------- | ------------------------------ |
+| `POST` | `/search`     | **Hybrid search** (RRF: MSSQL + Neo4j + HBase + RRF) |
+| `POST` | `/mssql/search` | MSSQL-only keyword search       |
+| `POST` | `/neo4j/search` | Neo4j graph search           |
+| `POST` | `/hbase/search` | HBase metrics endpoints       |
+| `GET`  | `/sources`    | List available sources           |
+| `GET`  | `/health`    | Health check                  |
+| `GET`  | `/docs`      | Swagger UI                   |
 
 ### Request/Response Schemas
 
@@ -224,19 +220,44 @@ class SearchResponse(BaseModel):
 
 ## **Ranking Pipeline**
 
+### Hybrid Search Endpoints
+
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/search` | POST | **Hybrid search**: MSSQL + Neo4j + HBase → RRF fusion |
+| `/mssql/search` | POST | MSSQL-only keyword/full-text search |
+| `/neo4j/search` | POST | Neo4j graph search (citations, related, coauthors) |
+| `/hbase/search` | POST | HBase metrics (keyword, author, venue, paper stats) |
+
 ### Reciprocal Rank Fusion (RRF) Formula
 
 ```python
-def rrf_fusion(results_list: list[list[PaperResult]], k: int = 60) -> list[PaperResult]:
+def rrf_fusion(results_list: list[list[PaperResult]], k: int = 60) -> list[dict]:
+    from collections import defaultdict
+    
     doc_scores: dict[str, float] = defaultdict(float)
+    doc_data: dict[str, dict] = {}
 
-    for results in results_list:
-        for rank, paper in enumerate(results, start=1):
-            doc_scores[paper.id] += 1 / (k + rank)
+    for source_results in results_list:
+        for rank, paper in enumerate(source_results, start=1):
+            paper_id = paper["id"]
+            doc_scores[paper_id] += 1 / (k + rank)
+            if paper_id not in doc_data:
+                doc_data[paper_id] = paper
 
     fused = sorted(doc_scores.items(), key=lambda x: x[1], reverse=True)
-    return fused
+    results = []
+    for paper_id, score in fused:
+        result = doc_data[paper_id].copy()
+        result["score"] = score
+        result["sources"] = [paper.get("source") for paper in doc_data.values() 
+                           if paper["id"] == paper_id]
+        results.append(result)
+    
+    return results
 ```
+
+**Graceful Degradation**: If any backend fails (connection error, timeout), log the error and exclude that source from fusion. Return partial results from available sources.
 
 ### Ranking Pipeline Flow
 
@@ -272,37 +293,46 @@ SemanticSearchEngine/
 ├── app/
 │   ├── __init__.py
 │   ├── main.py                    # FastAPI app entry point
-│   ├── config.py                  # Pydantic settings
-│   ├── dependencies.py            # FastAPI dependencies
+│   ├── config.py                # Pydantic settings
+│   ├── dependencies.py         # FastAPI dependencies
 │   │
 │   ├── api/
 │   │   ├── __init__.py
 │   │   ├── router.py              # Main API router
-│   │   ├── schemas.py             # Request/Response models
+│   │   ├── dto/
+│   │   │   ├── __init__.py
+│   │   │   └── search_dto.py     # Request/Response DTOs
 │   │   └── endpoints/
 │   │       ├── __init__.py
-│   │       ├── search.py          # /search endpoints
-│   │       └── health.py          # /health endpoint
+│   │       ├── search.py          # /search (hybrid RRF)
+│   │       ├── mssql.py         # /mssql/search
+│   │       ├── hbase.py         # /hbase/search
+│   │       ├── neo4j_search.py # /neo4j/search
+│   │       └── health.py        # /health endpoint
 │   │
 │   ├── services/
 │   │   ├── __init__.py
-│   │   ├── embedding.py           # Embedding generation
-│   │   ├── reranker.py           # BGE reranker service
 │   │   └── search/
 │   │       ├── __init__.py
-│   │       ├── router.py          # Query routing
-│   │       ├── merger.py          # RRF implementation
-│   │       ├── mssql_search.py    # MSSQL paper search
-│   │       ├── neo4j_search.py    # Neo4j citation search
-│   │       └── hbase_search.py    # HBase metrics search
+│   │       ├── hybrid_search.py   # Hybrid RRF search orchestrator
+│   │       ├── rrf_fusion.py   # RRF implementation
+│   │       ├── mssql_search.py # MSSQL paper search
+│   │       ├── neo4j_search.py # Neo4j citation search
+│   │       └── hbase_search.py # HBase metrics search
+│   │
+│   ├── repositories/
+│   │   ├── __init__.py
+│   │   └── paper.py           # MSSQL paper repository
 │   │
 │   ├── models/
 │   │   ├── __init__.py
-│   │   └── database.py            # SQLAlchemy models (Paper, Author, Venue)
+│   │   └── database.py        # SQLAlchemy models (Paper, Author, Venue)
 │   │
 │   └── db/
 │       ├── __init__.py
-│       └── init.py                # Database initializers
+│       ├── mssql.py          # MSSQL connection
+│       ├── neo4j.py         # Neo4j connection
+│       └── hbase_           # HBase connection
 │
 ├── data/
 │   ├── README.md
@@ -347,47 +377,25 @@ SemanticSearchEngine/
 ### Phase 3: HBase API Integration
 
 - [x] HBase initializer (placeholder)
-- [ ] Connect via API (HappyBase client, connection management, health check)
-- [ ] Analytical queries (implement search methods for all 6 tables)
-- [ ] Semantic search integration (wire HBase into RRF pipeline, `/search/hbase` endpoint)
-
----
-
-## **HBase Table Design**
-
-| Table | Row Key | Columns (m:qualifier) |
-|---|---|---|
-| `paper_metrics` | `paper_id` | `m:total_citations`, `m:first_cited_year`, `m:last_cited_year`, `m:citing_papers_count` |
-| `author_metrics` | `author_id` | `m:h_index`, `m:total_citations`, `m:paper_count`, `m:first_year`, `m:last_year` |
-| `author_metrics` | `author_id#YYYY` | `m:new_citations`, `m:new_papers` |
-| `venue_metrics` | `venue_id` | `m:paper_count`, `m:avg_citations`, `m:median_citations`, `m:total_citations`, `m:top_year`, `m:year_range` |
-| `paper_citation_velocity` | `paper_id` | `m:citations_YYYY` (per-year columns) |
-| `keyword_metrics` | `keyword` | `m:paper_count`, `m:total_citations`, `m:avg_year` |
-| `keyword_metrics` | `keyword#related` | `m:co_occurring_keyword:count` (sparse, up to 100 per keyword) |
-| `institution_metrics` | `institution_id` | `m:author_count`, `m:paper_count`, `m:total_citations`, `m:avg_citations` |
-
-### Estimated Storage
-
-For ~619K papers / ~1M+ authors:
-
-| Table | Row Count (est.) | Storage |
-|---|---|---|
-| `paper_metrics` | 619K | ~50 MB |
-| `author_metrics` | 1M+ | ~200 MB |
-| `venue_metrics` | ~5K | ~1 MB |
-| `paper_citation_velocity` | 619K × ~10 years | ~500 MB |
-| `keyword_metrics` | ~500K keywords | ~100 MB |
-| `institution_metrics` | ~50K institutions | ~10 MB |
-
-Total: **~860 MB**
+- [x] Connect via API (HappyBase client, connection management, health check)
+- [x] Analytical queries (implement search methods for all 6 tables)
+- [x] Semantic search integration (wire HBase into RRF pipeline, `/hbase/search` endpoint)
 
 ---
 
 ### Phase 4: Unified Search + RRF
 
-- [ ] Implement query router (parallel execution)
-- [ ] Implement RRF merger
-- [ ] Create unified `/search` endpoint
+- [x] Implement RRF merger (`app/services/search/rrf_fusion.py`)
+- [x] Create endpoint routing:
+  - [x] `/mssql/search` - MSSQL-only keyword search
+  - [x] `/hbase/search` - HBase metrics endpoints
+  - [x] `/neo4j/search` - Neo4j graph search (existing)
+  - [x] `/search` - **Hybrid search** (MSSQL + Neo4j + HBase + RRF)
+- [x] Parallel execution across all backends (using Factory Pattern for thread-safe connections)
+- [x] Graceful degradation (if one source fails, exclude from fusion)
+- [x] Fix RRF min_score filter bug (RRF scores are normalized, not raw similarity scores)
+
+---
 
 ### Phase 5: Reranking Integration
 

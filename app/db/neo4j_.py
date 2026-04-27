@@ -39,3 +39,10 @@ def get_neo4j_session() -> Generator:
         yield session
     finally:
         session.close()
+
+
+def get_neo4j_session_factory():
+    """Factory to create new Neo4j sessions for parallel execution."""
+    def factory():
+        return neo4j_conn.connect().session()
+    return factory
