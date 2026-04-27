@@ -399,8 +399,9 @@ SemanticSearchEngine/
 
 ### Phase 5: Reranking Integration
 
-- [ ] Integrate BGE reranker
-- [ ] Add reranking toggle to API
+- [x] Integrate BGE reranker (`app/services/reranker.py`)
+- [x] Add reranking toggle (`use_reranker` flag)
+- [x] Wire reranker into hybrid search pipeline
 
 ### Phase 6: Evaluation & Demo
 
