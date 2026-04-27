@@ -347,9 +347,41 @@ SemanticSearchEngine/
 ### Phase 3: HBase API Integration
 
 - [x] HBase initializer (placeholder)
-- [ ] Implement metrics table
-- [ ] Add citation count tracking
-- [ ] Implement HBase metrics search
+- [ ] Connect via API (HappyBase client, connection management, health check)
+- [ ] Analytical queries (implement search methods for all 6 tables)
+- [ ] Semantic search integration (wire HBase into RRF pipeline, `/search/hbase` endpoint)
+
+---
+
+## **HBase Table Design**
+
+| Table | Row Key | Columns (m:qualifier) |
+|---|---|---|
+| `paper_metrics` | `paper_id` | `m:total_citations`, `m:first_cited_year`, `m:last_cited_year`, `m:citing_papers_count` |
+| `author_metrics` | `author_id` | `m:h_index`, `m:total_citations`, `m:paper_count`, `m:first_year`, `m:last_year` |
+| `author_metrics` | `author_id#YYYY` | `m:new_citations`, `m:new_papers` |
+| `venue_metrics` | `venue_id` | `m:paper_count`, `m:avg_citations`, `m:median_citations`, `m:total_citations`, `m:top_year`, `m:year_range` |
+| `paper_citation_velocity` | `paper_id` | `m:citations_YYYY` (per-year columns) |
+| `keyword_metrics` | `keyword` | `m:paper_count`, `m:total_citations`, `m:avg_year` |
+| `keyword_metrics` | `keyword#related` | `m:co_occurring_keyword:count` (sparse, up to 100 per keyword) |
+| `institution_metrics` | `institution_id` | `m:author_count`, `m:paper_count`, `m:total_citations`, `m:avg_citations` |
+
+### Estimated Storage
+
+For ~619K papers / ~1M+ authors:
+
+| Table | Row Count (est.) | Storage |
+|---|---|---|
+| `paper_metrics` | 619K | ~50 MB |
+| `author_metrics` | 1M+ | ~200 MB |
+| `venue_metrics` | ~5K | ~1 MB |
+| `paper_citation_velocity` | 619K × ~10 years | ~500 MB |
+| `keyword_metrics` | ~500K keywords | ~100 MB |
+| `institution_metrics` | ~50K institutions | ~10 MB |
+
+Total: **~860 MB**
+
+---
 
 ### Phase 4: Unified Search + RRF
 
@@ -493,10 +525,3 @@ RETURN path
 ---
 
 ## **Search Scenarios**
-
-| Query                               | Primary Search                   | Graph Enhancement                |
-| ----------------------------------- | -------------------------------- | -------------------------------- |
-| "machine learning healthcare"       | MSSQL (full-text)                | Filter by citation count (HBase) |
-| "papers citing transformers"        | MSSQL + Neo4j (CITES)            | Rank by impact                   |
-| "NLP researchers at MIT"            | MSSQL (author/venue)             | Neo4j (co-authorship)            |
-| "highly cited deep learning papers" | MSSQL + HBase (citation metrics) | Neo4j (citation graph)           |

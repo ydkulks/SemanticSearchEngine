@@ -1,9 +1,13 @@
 import json
 import os
+import re
+import time
+from collections import defaultdict
 from typing import Optional
 
 from sqlalchemy import create_engine, inspect, text
 from sqlalchemy.engine import Engine
+from sqlalchemy.orm import Session
 
 from app.config import settings
 from app.db.base import BaseDBInitializer, InitResult
@@ -661,14 +665,609 @@ class Neo4jInitializer(BaseDBInitializer):
 
 
 class HBaseInitializer(BaseDBInitializer):
+    CHECKPOINT_FILE = ".hbase_init_checkpoint.json"
+    COLUMN_FAMILY = "m"
+    BATCH_SIZE = 1000
+
+    TABLE_SCHEMAS = {
+        "paper_metrics": {
+            COLUMN_FAMILY: {"max_versions": 1}
+        },
+        "author_metrics": {
+            COLUMN_FAMILY: {"max_versions": 1}
+        },
+        "venue_metrics": {
+            COLUMN_FAMILY: {"max_versions": 1}
+        },
+        "paper_citation_velocity": {
+            COLUMN_FAMILY: {"max_versions": 1}
+        },
+        "keyword_metrics": {
+            COLUMN_FAMILY: {"max_versions": 1}
+        },
+        "institution_metrics": {
+            COLUMN_FAMILY: {"max_versions": 1}
+        },
+    }
+
+    INSTITUTION_MAP = {
+        "mit": "Massachusetts Institute of Technology",
+        "massachusetts institute of technology": "Massachusetts Institute of Technology",
+        "stanford": "Stanford University",
+        "stanford university": "Stanford University",
+        "cmu": "Carnegie Mellon University",
+        "carnegie mellon university": "Carnegie Mellon University",
+        "berkeley": "University of California Berkeley",
+        "uc berkeley": "University of California Berkeley",
+        "university of california berkeley": "University of California Berkeley",
+        "caltech": "California Institute of Technology",
+        "california institute of technology": "California Institute of Technology",
+        "gatech": "Georgia Institute of Technology",
+        "georgia institute of technology": "Georgia Institute of Technology",
+        "uiuc": "University of Illinois Urbana-Champaign",
+        "university of illinois": "University of Illinois Urbana-Champaign",
+        "princeton": "Princeton University",
+        "harvard": "Harvard University",
+        "yale": "Yale University",
+        "cornell": "Cornell University",
+        "Columbia": "Columbia University",
+        "umass": "University of Massachusetts",
+        "university of massachusetts": "University of Massachusetts",
+        "utexas": "University of Texas at Austin",
+        "university of texas": "University of Texas at Austin",
+        "washington": "University of Washington",
+        "uw": "University of Washington",
+        "university of washington": "University of Washington",
+        "umich": "University of Michigan",
+        "university of michigan": "University of Michigan",
+        "utexas": "University of Texas",
+    }
+
     def check_connection(self) -> bool:
-        return False
+        from app.db.hbase_ import hbase_conn
+        return hbase_conn.check_connection()
 
     def create_tables(self) -> bool:
-        return True
+        from app.db.hbase_ import hbase_conn
 
-    def initialize(self, data_path: Optional[str] = None) -> InitResult:
-        return InitResult(
-            tables_created=True,
-            message="HBase: Placeholder initialized (metrics table to be implemented)",
+        tables = hbase_conn.list_tables()
+        existing = set(t.get("name") if isinstance(t, dict) else t for t in tables)
+
+        to_create = [name for name in self.TABLE_SCHEMAS if name not in existing]
+
+        for table_name in to_create:
+            try:
+                hbase_conn.create_table(table_name, self.TABLE_SCHEMAS[table_name])
+                print(f"Created table: {table_name}")
+            except Exception as e:
+                pass
+
+        return len(to_create) > 0
+
+    def _load_checkpoint(self) -> Optional[dict]:
+        if os.path.exists(self.CHECKPOINT_FILE):
+            try:
+                with open(self.CHECKPOINT_FILE, "r") as f:
+                    return json.load(f)
+            except Exception:
+                pass
+        return None
+
+    def _save_checkpoint(self, checkpoint: dict):
+        with open(self.CHECKPOINT_FILE, "w") as f:
+            json.dump(checkpoint, f, indent=2)
+
+    def _clear_checkpoint(self):
+        if os.path.exists(self.CHECKPOINT_FILE):
+            os.remove(self.CHECKPOINT_FILE)
+
+    def _normalize_keyword(self, keyword: str) -> str:
+        kw = keyword.lower()
+        kw = re.sub(r"[^\w\s]", "", kw)
+        kw = re.sub(r"[\-–—]", " ", kw)
+        kw = re.sub(r"\s+", " ", kw).strip()
+        return kw
+
+    def _normalize_institution(self, raw: str) -> str:
+        if not raw:
+            return "unknown"
+        normalized = raw.lower().strip()
+        return self.INSTITUTION_MAP.get(normalized, raw.strip())
+
+    def _get_mssql_engine(self):
+        return create_engine(
+            settings.mssql.connection_url,
+            pool_pre_ping=True,
         )
+
+    def _get_neo4j_driver(self):
+        from neo4j import GraphDatabase
+
+        return GraphDatabase.driver(
+            settings.neo4j.uri,
+            auth=(settings.neo4j.username, settings.neo4j.password),
+        )
+
+    def _calculate_h_index(self, citation_counts: list[int]) -> int:
+        sorted_counts = sorted(citation_counts, reverse=True)
+        h_index = 0
+        for i, count in enumerate(sorted_counts, start=1):
+            if count >= i:
+                h_index = i
+            else:
+                break
+        return h_index
+
+    def populate_all_metrics(self) -> dict:
+        from app.db.hbase_ import hbase_conn
+
+        checkpoint = self._load_checkpoint()
+        stats = {
+            "paper_metrics": 0,
+            "author_metrics": 0,
+            "venue_metrics": 0,
+            "paper_citation_velocity": 0,
+            "keyword_metrics": 0,
+            "institution_metrics": 0,
+        }
+
+        start_time = time.time()
+
+        if checkpoint is None:
+            print("Starting HBase metrics population...")
+            current_phase = "paper_citations"
+        else:
+            print(f"Resuming from checkpoint: {checkpoint.get('phase', 'unknown')}")
+            current_phase = checkpoint.get("phase", "paper_citations")
+            stats.update(checkpoint.get("stats", stats))
+
+        if current_phase in ("paper_citations", "author_metrics", "venue_metrics", "paper_citation_velocity", "keyword_metrics", "institution_metrics"):
+            if current_phase == "paper_citations":
+                stats = self._populate_paper_citations(stats, checkpoint, start_time)
+            if current_phase == "author_metrics":
+                stats = self._populate_author_metrics(stats, checkpoint, start_time)
+            if current_phase == "venue_metrics":
+                stats = self._populate_venue_metrics(stats, checkpoint, start_time)
+            if current_phase == "paper_citation_velocity":
+                stats = self._populate_paper_citation_velocity(stats, checkpoint, start_time)
+            if current_phase == "keyword_metrics":
+                stats = self._populate_keyword_metrics(stats, checkpoint, start_time)
+            if current_phase == "institution_metrics":
+                stats = self._populate_institution_metrics(stats, checkpoint, start_time)
+
+        elapsed = time.time() - start_time
+        print(f"HBase metrics population complete: {stats} ({elapsed:.1f}s)")
+        return stats
+
+    def _populate_paper_citations(self, stats: dict, checkpoint: Optional[dict], start_time: float) -> dict:
+        from neo4j import GraphDatabase
+        from app.db.hbase_ import hbase_conn
+
+        engine = self._get_mssql_engine()
+        driver = self._get_neo4j_driver()
+
+        print("Fetching citation data from Neo4j and MSSQL...")
+
+        paper_years = {}
+        with engine.connect() as conn:
+            result = conn.execute(text("SELECT id, year FROM papers WHERE year IS NOT NULL"))
+            for row in result:
+                paper_years[row[0]] = row[1]
+
+        citation_data = defaultdict(lambda: {"citations": set(), "years": defaultdict(int)})
+
+        with driver.session() as session:
+            result = session.run("""
+                MATCH (citing:Paper)-[:CITES]->(cited:Paper)
+                RETURN cited.id AS paper_id, citing.id AS citing_id
+            """)
+            for record in result:
+                paper_id = record["paper_id"]
+                citing_id = record["citing_id"]
+                if paper_id and citing_id:
+                    citation_data[paper_id]["citations"].add(citing_id)
+                    citing_year = paper_years.get(citing_id)
+                    if citing_year:
+                        citation_data[paper_id]["years"][citing_year] += 1
+
+        driver.close()
+        engine.dispose()
+
+        print(f"Processing {len(citation_data)} papers with citations...")
+
+        paper_table = hbase_conn.get_table("paper_metrics")
+        processed = 0
+
+        for paper_id, data in citation_data.items():
+            total_citations = len(data["citations"])
+            years = list(data["years"].keys())
+            first_year = min(years) if years else None
+            last_year = max(years) if years else None
+
+            row = {
+                "m:total_citations": str(total_citations),
+                "m:first_cited_year": str(first_year) if first_year else "",
+                "m:last_cited_year": str(last_year) if last_year else "",
+                "m:citing_papers_count": str(total_citations),
+            }
+            paper_table.put(paper_id, row)
+
+            processed += 1
+            stats["paper_metrics"] += 1
+
+            if processed % 1000 == 0:
+                elapsed = time.time() - start_time
+                rate = processed / elapsed if elapsed > 0 else 0
+                print(f"  Written {stats['paper_metrics']:,} paper_metrics... ({rate:.0f}/sec)")
+
+                self._save_checkpoint({"phase": "paper_citations", "stats": stats})
+
+        print(f"paper_metrics: {stats['paper_metrics']:,} rows")
+
+        self._save_checkpoint({"phase": "author_metrics", "stats": stats})
+        return stats
+
+    def _populate_author_metrics(self, stats: dict, checkpoint: Optional[dict], start_time: float) -> dict:
+        from app.db.hbase_ import hbase_conn
+
+        engine = self._get_mssql_engine()
+
+        print("Computing author metrics from MSSQL...")
+
+        author_papers = defaultdict(list)
+        author_citations = defaultdict(list)
+
+        with engine.connect() as conn:
+            result = conn.execute(text("""
+                SELECT pa.author_id, p.id, p.year, pr.citation_count
+                FROM paper_authors pa
+                JOIN papers p ON pa.paper_id = p.id
+                LEFT JOIN (
+                    SELECT referenced_paper_id, COUNT(*) AS citation_count
+                    FROM paper_references
+                    WHERE referenced_paper_id IS NOT NULL
+                    GROUP BY referenced_paper_id
+                ) pr ON p.id = pr.referenced_paper_id
+            """))
+            for row in result:
+                author_id = row[0]
+                paper_id = row[1]
+                year = row[2]
+                citations = row[3] or 0
+                author_papers[author_id].append((paper_id, year))
+                author_citations[author_id].append(citations)
+
+        author_table = hbase_conn.get_table("author_metrics")
+        processed = 0
+
+        for author_id, papers in author_papers.items():
+            citations = author_citations[author_id]
+            h_index = self._calculate_h_index(citations)
+            years = [p[1] for p in papers if p[1]]
+            first_year = min(years) if years else None
+            last_year = max(years) if years else None
+
+            row = {
+                "m:h_index": str(h_index),
+                "m:total_citations": str(sum(citations)),
+                "m:paper_count": str(len(papers)),
+                "m:first_year": str(first_year) if first_year else "",
+                "m:last_year": str(last_year) if last_year else "",
+            }
+            author_table.put(author_id, row)
+
+            processed += 1
+            stats["author_metrics"] += 1
+
+            if processed % 10000 == 0:
+                elapsed = time.time() - start_time
+                rate = processed / elapsed if elapsed > 0 else 0
+                print(f"  Written {stats['author_metrics']:,} author_metrics... ({rate:.0f}/sec)")
+
+                self._save_checkpoint({"phase": "author_metrics", "stats": stats})
+
+        engine.dispose()
+
+        print(f"author_metrics: {stats['author_metrics']:,} rows")
+
+        self._save_checkpoint({"phase": "venue_metrics", "stats": stats})
+        return stats
+
+    def _populate_venue_metrics(self, stats: dict, checkpoint: Optional[dict], start_time: float) -> dict:
+        from app.db.hbase_ import hbase_conn
+
+        engine = self._get_mssql_engine()
+
+        print("Computing venue metrics from MSSQL...")
+
+        venue_papers = defaultdict(list)
+        venue_citations = defaultdict(list)
+
+        with engine.connect() as conn:
+            result = conn.execute(text("""
+                SELECT p.venue_id, p.id, p.year,
+                    (SELECT COUNT(*) FROM paper_references WHERE referenced_paper_id = p.id) AS citations
+                FROM papers p
+                WHERE p.venue_id IS NOT NULL
+            """))
+            for row in result:
+                venue_id = row[0]
+                paper_id = row[1]
+                year = row[2]
+                citations = row[3] or 0
+                if venue_id:
+                    venue_papers[venue_id].append((paper_id, year, citations))
+                    venue_citations[venue_id].append(citations)
+
+        venue_table = hbase_conn.get_table("venue_metrics")
+        processed = 0
+
+        for venue_id, papers in venue_papers.items():
+            citations = venue_citations[venue_id]
+            paper_count = len(papers)
+            total_citations = sum(citations)
+            avg_citations = total_citations / paper_count if paper_count > 0 else 0
+            sorted_citations = sorted(citations)
+            mid = len(sorted_citations) // 2
+            median_citations = sorted_citations[mid] if sorted_citations else 0
+            years = [p[1] for p in papers if p[1]]
+            top_year = max(years) if years else None
+            year_range = max(years) - min(years) if len(years) > 1 else 0
+
+            row = {
+                "m:paper_count": str(paper_count),
+                "m:avg_citations": str(int(avg_citations)),
+                "m:median_citations": str(median_citations),
+                "m:total_citations": str(total_citations),
+                "m:top_year": str(top_year) if top_year else "",
+                "m:year_range": str(year_range),
+            }
+            venue_table.put(venue_id, row)
+
+            processed += 1
+            stats["venue_metrics"] += 1
+
+            if processed % 10000 == 0:
+                elapsed = time.time() - start_time
+                rate = processed / elapsed if elapsed > 0 else 0
+                print(f"  Written {stats['venue_metrics']:,} venue_metrics... ({rate:.0f}/sec)")
+
+                self._save_checkpoint({"phase": "venue_metrics", "stats": stats})
+
+        engine.dispose()
+
+        print(f"venue_metrics: {stats['venue_metrics']:,} rows")
+
+        self._save_checkpoint({"phase": "paper_citation_velocity", "stats": stats})
+        return stats
+
+    def _populate_paper_citation_velocity(self, stats: dict, checkpoint: Optional[dict], start_time: float) -> dict:
+        from app.db.hbase_ import hbase_conn
+
+        engine = self._get_mssql_engine()
+        driver = self._get_neo4j_driver()
+
+        print("Fetching citation data for velocity...")
+
+        paper_years = {}
+        with engine.connect() as conn:
+            result = conn.execute(text("SELECT id, year FROM papers WHERE year IS NOT NULL"))
+            for row in result:
+                paper_years[row[0]] = row[1]
+
+        velocity_data = defaultdict(lambda: defaultdict(int))
+
+        with driver.session() as session:
+            result = session.run("""
+                MATCH (citing:Paper)-[:CITES]->(cited:Paper)
+                RETURN cited.id AS paper_id, citing.id AS citing_id
+            """)
+            for record in result:
+                paper_id = record["paper_id"]
+                citing_id = record["citing_id"]
+                if paper_id and citing_id:
+                    citing_year = paper_years.get(citing_id)
+                    if citing_year:
+                        velocity_data[paper_id][citing_year] += 1
+
+        driver.close()
+        engine.dispose()
+
+        print(f"Processing {len(velocity_data)} papers for velocity...")
+        velocity_table = hbase_conn.get_table("paper_citation_velocity")
+        processed = 0
+
+        for paper_id, year_counts in velocity_data.items():
+            row = {f"m:citations_{year}": str(count) for year, count in year_counts.items()}
+            velocity_table.put(paper_id, row)
+
+            processed += 1
+            stats["paper_citation_velocity"] += 1
+
+            if processed % 1000 == 0:
+                elapsed = time.time() - start_time
+                rate = processed / elapsed if elapsed > 0 else 0
+                print(f"  Written {stats['paper_citation_velocity']:,} paper_citation_velocity... ({rate:.0f}/sec)")
+
+                self._save_checkpoint({"phase": "paper_citation_velocity", "stats": stats})
+
+        print(f"paper_citation_velocity: {stats['paper_citation_velocity']:,} rows")
+
+        self._save_checkpoint({"phase": "keyword_metrics", "stats": stats})
+        return stats
+
+    def _populate_keyword_metrics(self, stats: dict, checkpoint: Optional[dict], start_time: float) -> dict:
+        from app.db.hbase_ import hbase_conn
+
+        engine = self._get_mssql_engine()
+
+        print("Computing keyword metrics from MSSQL...")
+
+        keyword_papers = defaultdict(set)
+        keyword_citations = defaultdict(int)
+        keyword_years = defaultdict(list)
+        keyword_cooccurrence = defaultdict(lambda: defaultdict(int))
+
+        with engine.connect() as conn:
+            result = conn.execute(text("""
+                SELECT p.id, p.keywords, p.year,
+                    (SELECT COUNT(*) FROM paper_references WHERE referenced_paper_id = p.id) AS citations
+                FROM papers p
+                WHERE p.keywords IS NOT NULL AND p.keywords != '[]'
+            """))
+            for row in result:
+                paper_id = row[0]
+                keywords_json = row[1]
+                year = row[2]
+                citations = row[3] or 0
+
+                try:
+                    keywords = json.loads(keywords_json)
+                except Exception:
+                    continue
+
+                normalized = [self._normalize_keyword(k) for k in keywords if k]
+                for kw in normalized:
+                    keyword_papers[kw].add(paper_id)
+                    keyword_citations[kw] += citations
+                    if year:
+                        keyword_years[kw].append(year)
+
+                for i, kw1 in enumerate(normalized):
+                    for kw2 in normalized[i + 1:]:
+                        if kw1 and kw2:
+                            keyword_cooccurrence[kw1][kw2] += 1
+                            keyword_cooccurrence[kw2][kw1] += 1
+
+        keyword_table = hbase_conn.get_table("keyword_metrics")
+        processed = 0
+
+        for keyword, papers in keyword_papers.items():
+            paper_count = len(papers)
+            total_citations = keyword_citations[keyword]
+            avg_year = sum(keyword_years[keyword]) / paper_count if paper_count > 0 else 0
+
+            row = {
+                "m:paper_count": str(paper_count),
+                "m:total_citations": str(total_citations),
+                "m:avg_year": str(int(avg_year)),
+            }
+            keyword_table.put(keyword, row)
+
+            cooccurring = keyword_cooccurrence[keyword]
+            if cooccurring:
+                top_related = sorted(cooccurring.items(), key=lambda x: x[1], reverse=True)[:100]
+                related_row = {
+                    f"m:co_{rel_kw}": str(count)
+                    for rel_kw, count in top_related
+                }
+                keyword_table.put(f"{keyword}#related", related_row)
+
+            processed += 2
+            stats["keyword_metrics"] += 2
+
+            if processed % 20000 == 0:
+                elapsed = time.time() - start_time
+                rate = processed / elapsed if elapsed > 0 else 0
+                print(f"  Written {stats['keyword_metrics']:,} keyword_metrics... ({rate:.0f}/sec)")
+
+                self._save_checkpoint({"phase": "keyword_metrics", "stats": stats})
+
+        engine.dispose()
+
+        print(f"keyword_metrics: {stats['keyword_metrics']:,} rows")
+
+        self._save_checkpoint({"phase": "institution_metrics", "stats": stats})
+        return stats
+
+    def _populate_institution_metrics(self, stats: dict, checkpoint: Optional[dict], start_time: float) -> dict:
+        from app.db.hbase_ import hbase_conn
+
+        engine = self._get_mssql_engine()
+
+        print("Computing institution metrics from MSSQL...")
+
+        institution_authors = defaultdict(set)
+        institution_papers = defaultdict(set)
+        institution_citations = defaultdict(int)
+
+        with engine.connect() as conn:
+            result = conn.execute(text("""
+                SELECT a.id, a.affiliation,
+                    p.id AS paper_id,
+                    (SELECT COUNT(*) FROM paper_references WHERE referenced_paper_id = p.id) AS citations
+                FROM authors a
+                LEFT JOIN paper_authors pa ON a.id = pa.author_id
+                LEFT JOIN papers p ON pa.paper_id = p.id
+            """))
+            for row in result:
+                author_id = row[0]
+                affiliation = row[1]
+                paper_id = row[2]
+                citations = row[3] or 0
+
+                if not affiliation:
+                    continue
+
+                normalized = self._normalize_institution(affiliation)
+                institution_authors[normalized].add(author_id)
+                if paper_id:
+                    institution_papers[normalized].add(paper_id)
+                    institution_citations[normalized] += citations
+
+        institution_table = hbase_conn.get_table("institution_metrics")
+        processed = 0
+
+        for institution_id, authors in institution_authors.items():
+            author_count = len(authors)
+            papers = institution_papers[institution_id]
+            paper_count = len(papers)
+            total_citations = institution_citations[institution_id]
+            avg_citations = total_citations / paper_count if paper_count > 0 else 0
+
+            row = {
+                "m:author_count": str(author_count),
+                "m:paper_count": str(paper_count),
+                "m:total_citations": str(total_citations),
+                "m:avg_citations": str(int(avg_citations)),
+            }
+            institution_table.put(institution_id, row)
+
+            processed += 1
+            stats["institution_metrics"] += 1
+
+            if processed % 10000 == 0:
+                elapsed = time.time() - start_time
+                rate = processed / elapsed if elapsed > 0 else 0
+                print(f"  Written {stats['institution_metrics']:,} institution_metrics... ({rate:.0f}/sec)")
+
+                self._save_checkpoint({"phase": "institution_metrics", "stats": stats})
+
+        engine.dispose()
+
+        print(f"institution_metrics: {stats['institution_metrics']:,} rows")
+
+        self._clear_checkpoint()
+        return stats
+
+    def initialize(self, data_path=None) -> InitResult:
+        try:
+            tables_created = self.create_tables()
+
+            if data_path or True:
+                stats = self.populate_all_metrics()
+
+            message = f"HBase: Tables {'created' if tables_created else 'already exist'}, "
+            message += f"metrics: paper={stats['paper_metrics']:,}, author={stats['author_metrics']:,}, "
+            message += f"venue={stats['venue_metrics']:,}, velocity={stats['paper_citation_velocity']:,}, "
+            message += f"keyword={stats['keyword_metrics']:,}, institution={stats['institution_metrics']:,}"
+
+            return InitResult(
+                tables_created=tables_created,
+                message=message,
+            )
+        except Exception as e:
+            return InitResult(
+                tables_created=False,
+                message=f"HBase initialization failed: {str(e)}",
+            )

@@ -43,9 +43,23 @@ class Neo4jConfig(BaseSettings):
 
 
 class HBaseConfig(BaseSettings):
-    host: str = ""
-    port: str = "9090"
+    host: str = "localhost"
+    port: int = 9090
     timeout: int = 30
+    use_rest: bool = True
+    rest_port: int = 8080
+
+    @property
+    def thrift_host(self) -> str:
+        return self.host
+
+    @property
+    def thrift_port(self) -> int:
+        return self.port
+
+    @property
+    def rest_url(self) -> str:
+        return f"http://{self.host}:{self.rest_port}"
 
     model_config = SettingsConfigDict(
         env_file=".env",
