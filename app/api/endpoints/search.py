@@ -25,6 +25,7 @@ def search_papers(request: SearchRequestDTO):
         top_k=request.top_k,
         filters=request.filters,
         min_score=request.min_score,
+        use_reranker=request.use_reranker,
     )
 
     latency_ms = (time.time() - start_time) * 1000

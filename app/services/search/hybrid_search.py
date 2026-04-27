@@ -10,6 +10,7 @@ from app.services.search.mssql_search import mssql_paper_search
 from app.services.search.neo4j_search import neo4j_paper_search
 from app.services.search.hbase_search import hbase_search
 from app.services.search.rrf_fusion import rrf_fusion
+from app.services.reranker import rerank_results
 
 logger = logging.getLogger(__name__)
 
@@ -112,6 +113,7 @@ def hybrid_search(
     top_k: int = 10,
     filters: Optional[dict] = None,
     min_score: Optional[float] = None,
+    use_reranker: bool = False,
 ) -> tuple[list[dict], list[str]]:
     """
     Run hybrid search across all backends with RRF fusion.
@@ -124,6 +126,7 @@ def hybrid_search(
         top_k: Number of results to return
         filters: Optional filters for MSSQL search
         min_score: Minimum score threshold for RRF
+        use_reranker: Whether to apply BGE reranking
         
     Returns:
         Tuple of (fused results, list of successful sources)
@@ -189,5 +192,10 @@ def hybrid_search(
         k=60,
         min_score=min_score,
     )
+    
+    if use_reranker and fused:
+        logger.info(f"[Hybrid] Applying BGE reranking to {len(fused)} results")
+        fused = rerank_results(query, fused, top_k=top_k)
+        logger.info(f"[Hybrid] Reranking complete. Got {len(fused)} results")
     
     return fused[:top_k], successful_sources

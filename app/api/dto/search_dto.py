@@ -5,9 +5,9 @@ from pydantic import BaseModel, Field
 class SearchRequestDTO(BaseModel):
     query: str = Field(..., min_length=1, max_length=1000)
     top_k: int = Field(default=10, ge=1, le=100)
-    use_reranker: bool = True
-    filters: Optional[dict] = None
-    min_score: Optional[float] = Field(default=None, ge=0.0, le=1.0)
+    use_reranker: bool = Field(default=False, description="Apply BGE cross-encoder reranking")
+    filters: Optional[dict] = Field(default=None, description="Optional filters (year, venue)")
+    min_score: Optional[float] = Field(default=None, description="Minimum RRF score threshold (not raw score)")
 
 
 class PaperResultDTO(BaseModel):
