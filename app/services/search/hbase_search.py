@@ -2,6 +2,34 @@ from typing import Optional
 from app.db.hbase_ import hbase_conn
 
 
+def _get_author_names(author_ids: list[str]) -> dict[str, str]:
+    """Fetch author names from MSSQL given author IDs."""
+    from sqlalchemy import create_engine, text
+    from app.config import settings
+    
+    if not author_ids:
+        return {}
+    
+    engine = create_engine(settings.mssql.connection_url, pool_pre_ping=True)
+    
+    placeholders = ", ".join([f":author_id_{i}" for i in range(len(author_ids))])
+    params = {f"author_id_{i}": aid for i, aid in enumerate(author_ids)}
+    
+    sql = text(f"""
+        SELECT id, name
+        FROM authors
+        WHERE id IN ({placeholders})
+    """)
+    
+    result = {}
+    with engine.connect() as conn:
+        for row in conn.execute(sql, params):
+            result[row[0]] = row[1]
+    
+    engine.dispose()
+    return result
+
+
 def hbase_keyword_search(
     query: str,
     top_k: int = 10,
@@ -41,12 +69,15 @@ def hbase_author_search(
     if not row:
         return []
 
+    author_names = _get_author_names([author_id])
+    author_name = author_names.get(author_id, author_id)
+
     return [{
         "id": f"author:{author_id}",
-        "title": f"Author ID: {author_id}",
+        "title": f"Author: {author_name}",
         "content": f"H-index: {row.get('m:h_index', 0)} | Papers: {row.get('m:paper_count', 0)} | Total citations: {row.get('m:total_citations', 0)}",
         "abstract": None,
-        "authors": [author_id],
+        "authors": [author_name],
         "year": int(row.get("m:last_year", 0)) or None,
         "venue": None,
         "keywords": [],
@@ -207,13 +238,18 @@ def hbase_top_authors_search(
             sorted_authors = sorted(author_citations.items(
             ), key=lambda x: x[1]["h_index"], reverse=True)
 
+            # Fetch author names for top K authors
+            top_author_ids = [author_id for author_id, _ in sorted_authors[:top_k]]
+            author_names = _get_author_names(top_author_ids)
+
             for author_id, data in sorted_authors[:top_k]:
+                author_name = author_names.get(author_id, author_id)
                 results.append({
                     "id": f"author:{author_id}",
-                    "title": f"Author: {author_id[:20]}...",
+                    "title": f"Author: {author_name}",
                     "content": f"H-index: {data['h_index']} | Papers: {data['paper_count']} | Citations: {data['total_citations']}",
                     "abstract": None,
-                    "authors": [author_id],
+                    "authors": [author_name],
                     "year": data.get("last_year"),
                     "venue": None,
                     "keywords": [],

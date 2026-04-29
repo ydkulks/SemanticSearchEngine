@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+from app.config import settings
 import argparse
 import json
 import logging
@@ -13,7 +14,6 @@ from sqlalchemy import create_engine, text
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from app.config import settings
 
 logging.getLogger("neo4j").setLevel(logging.ERROR)
 
@@ -32,7 +32,8 @@ def get_mssql_engine():
 def get_neo4j_driver():
     from neo4j import GraphDatabase
     return GraphDatabase.driver(
-        settings.neo4j.uri, auth=(settings.neo4j.username, settings.neo4j.password)
+        settings.neo4j.uri, auth=(
+            settings.neo4j.username, settings.neo4j.password)
     )
 
 
@@ -77,18 +78,32 @@ def get_mssql_total_papers(engine):
         return result.scalar()
 
 
-def get_mssql_papers_without_embeddings(engine, offset: int, batch_size: int):
+# def get_mssql_papers_without_embeddings(engine, offset: int, batch_size: int):
+#     with engine.connect() as conn:
+#         result = conn.execute(
+#             text("""
+#                 SELECT p.id, p.title, p.abstract
+#                 FROM papers p
+#                 LEFT JOIN embeddings e ON p.id = e.paper_id
+#                 WHERE e.paper_id IS NULL
+#                 ORDER BY p.id
+#                 OFFSET :offset ROWS FETCH NEXT :batch ROWS ONLY
+#             """),
+#             {"offset": offset, "batch": batch_size},
+#         )
+#         return result.fetchall()
+
+def get_mssql_papers_without_embeddings(engine, batch_size: int):
     with engine.connect() as conn:
         result = conn.execute(
             text("""
-                SELECT p.id, p.title, p.abstract
+                SELECT TOP (:batch) p.id, p.title, p.abstract
                 FROM papers p
                 LEFT JOIN embeddings e ON p.id = e.paper_id
                 WHERE e.paper_id IS NULL
                 ORDER BY p.id
-                OFFSET :offset ROWS FETCH NEXT :batch ROWS ONLY
             """),
-            {"offset": offset, "batch": batch_size},
+            {"batch": batch_size},
         )
         return result.fetchall()
 
@@ -184,7 +199,8 @@ def ensure_neo4j_vector_indexes(driver, embedding_dim: int):
             """, dim=embedding_dim)
             print("  Vector index for Paper nodes ensured")
         except Exception as e:
-            print(f"  Note: Could not create paper vector index (may already exist): {e}")
+            print(
+                f"  Note: Could not create paper vector index (may already exist): {e}")
 
         try:
             session.run("""
@@ -194,7 +210,8 @@ def ensure_neo4j_vector_indexes(driver, embedding_dim: int):
             """, dim=embedding_dim)
             print("  Vector index for Author nodes ensured")
         except Exception as e:
-            print(f"  Note: Could not create author vector index (may already exist): {e}")
+            print(
+                f"  Note: Could not create author vector index (may already exist): {e}")
 
 
 def get_neo4j_papers_without_embeddings(session, batch_size: int):
@@ -249,7 +266,8 @@ def generate_author_text(name: str, affiliation: str | None, paper_titles: list)
 def update_neo4j_paper_embeddings(session, embeddings_data: list, model_name: str, embedding_dim: int):
     if not embeddings_data:
         return
-    rows = [{"id": node_id, "embedding": embedding} for node_id, embedding in embeddings_data]
+    rows = [{"id": node_id, "embedding": embedding}
+            for node_id, embedding in embeddings_data]
     session.run("""
         UNWIND $rows AS row
         MATCH (p:Paper {id: row.id})
@@ -262,7 +280,8 @@ def update_neo4j_paper_embeddings(session, embeddings_data: list, model_name: st
 def update_neo4j_author_embeddings(session, embeddings_data: list, model_name: str, embedding_dim: int):
     if not embeddings_data:
         return
-    rows = [{"id": node_id, "embedding": embedding} for node_id, embedding in embeddings_data]
+    rows = [{"id": node_id, "embedding": embedding}
+            for node_id, embedding in embeddings_data]
     session.run("""
         UNWIND $rows AS row
         MATCH (a:Author {id: row.id})
@@ -273,13 +292,15 @@ def update_neo4j_author_embeddings(session, embeddings_data: list, model_name: s
 
 
 def get_neo4j_total_papers(session):
-    result = session.run("MATCH (p:Paper) WHERE p.paper_embedding IS NULL RETURN count(p) AS cnt")
+    result = session.run(
+        "MATCH (p:Paper) WHERE p.paper_embedding IS NULL RETURN count(p) AS cnt")
     record = result.single()
     return record["cnt"] if record else 0
 
 
 def get_neo4j_total_authors(session):
-    result = session.run("MATCH (a:Author) WHERE a.author_embedding IS NULL RETURN count(a) AS cnt")
+    result = session.run(
+        "MATCH (a:Author) WHERE a.author_embedding IS NULL RETURN count(a) AS cnt")
     record = result.single()
     return record["cnt"] if record else 0
 
@@ -291,7 +312,7 @@ def run_mssql(args, model):
     total_papers = get_mssql_total_papers(engine)
     print(f"Total papers in database: {total_papers:,}")
 
-    offset = 0
+    # offset = 0
     processed = 0
     start_time = time.time()
 
@@ -307,9 +328,13 @@ def run_mssql(args, model):
 
     failed_count = 0
 
-    while offset < total_papers:
+    processed = 0
+    start_time = time.time()
+    failed_count = 0
+
+    while True:
         try:
-            papers = get_mssql_papers_without_embeddings(engine, offset, args.batch)
+            papers = get_mssql_papers_without_embeddings(engine, args.batch)
             if not papers:
                 break
 
@@ -323,7 +348,6 @@ def run_mssql(args, model):
             insert_mssql_embeddings(engine, embeddings_data, args.model)
 
             processed += len(papers)
-            offset += len(papers)
 
             elapsed = time.time() - start_time
             rate = processed / elapsed if elapsed > 0 else 0
@@ -334,15 +358,47 @@ def run_mssql(args, model):
                 f"({rate:.0f}/sec, ETA: {eta:.1f}min)"
             )
 
-            save_mssql_progress(offset, processed)
-
         except Exception as e:
-            print(f"  ERROR at offset {offset:,}: {e}")
-            log_failed_batch(offset, args.batch, str(e), "mssql")
+            print(f"  ERROR after {processed:,}: {e}")
+            log_failed_batch(processed, args.batch, str(e), "mssql")
             failed_count += 1
-            offset += args.batch
-            processed += args.batch
-            save_mssql_progress(offset, processed)
+
+    # while offset < total_papers:
+    #     try:
+    #         papers = get_mssql_papers_without_embeddings(engine, offset, args.batch)
+    #         if not papers:
+    #             break
+
+    #         texts = [generate_text(p.title, p.abstract) for p in papers]
+    #         paper_ids = [p.id for p in papers]
+
+    #         embeddings = model.encode(texts, show_progress_bar=False)
+
+    #         embeddings_data = list(zip(paper_ids, embeddings.tolist()))
+
+    #         insert_mssql_embeddings(engine, embeddings_data, args.model)
+
+    #         processed += len(papers)
+    #         offset += len(papers)
+
+    #         elapsed = time.time() - start_time
+    #         rate = processed / elapsed if elapsed > 0 else 0
+    #         eta = (total_papers - processed) / rate / 60 if rate > 0 else 0
+
+    #         print(
+    #             f"  Processed {processed:,}/{total_papers:,} papers "
+    #             f"({rate:.0f}/sec, ETA: {eta:.1f}min)"
+    #         )
+
+    #         save_mssql_progress(offset, processed)
+
+    #     except Exception as e:
+    #         print(f"  ERROR at offset {offset:,}: {e}")
+    #         log_failed_batch(offset, args.batch, str(e), "mssql")
+    #         failed_count += 1
+    #         offset += args.batch
+    #         processed += args.batch
+    #         save_mssql_progress(offset, processed)
 
     delete_mssql_progress()
 
@@ -378,7 +434,8 @@ def run_neo4j_papers(args, model, driver):
 
         while True:
             try:
-                papers = get_neo4j_papers_without_embeddings(session, args.batch)
+                papers = get_neo4j_papers_without_embeddings(
+                    session, args.batch)
                 if not papers:
                     break
 
@@ -397,7 +454,8 @@ def run_neo4j_papers(args, model, driver):
 
                 embeddings_data = list(zip(ids, embeddings.tolist()))
 
-                update_neo4j_paper_embeddings(session, embeddings_data, args.model, embedding_dim)
+                update_neo4j_paper_embeddings(
+                    session, embeddings_data, args.model, embedding_dim)
 
                 processed += len(papers)
 
@@ -453,7 +511,8 @@ def run_neo4j_authors(args, model, driver):
 
         while True:
             try:
-                authors = get_neo4j_authors_without_embeddings(session, args.batch)
+                authors = get_neo4j_authors_without_embeddings(
+                    session, args.batch)
                 if not authors:
                     break
 
@@ -471,13 +530,15 @@ def run_neo4j_authors(args, model, driver):
 
                 embeddings_data = list(zip(ids, embeddings.tolist()))
 
-                update_neo4j_author_embeddings(session, embeddings_data, args.model, embedding_dim)
+                update_neo4j_author_embeddings(
+                    session, embeddings_data, args.model, embedding_dim)
 
                 processed += len(authors)
 
                 elapsed = time.time() - start_time
                 rate = processed / elapsed if elapsed > 0 else 0
-                eta = (total_authors - processed) / rate / 60 if rate > 0 else 0
+                eta = (total_authors - processed) / \
+                    rate / 60 if rate > 0 else 0
 
                 print(
                     f"  Processed {processed:,}/{total_authors:,} authors "
@@ -488,7 +549,8 @@ def run_neo4j_authors(args, model, driver):
 
             except Exception as e:
                 print(f"  ERROR at {processed:,}: {e}")
-                log_failed_batch(processed, args.batch, str(e), "neo4j_authors")
+                log_failed_batch(processed, args.batch,
+                                 str(e), "neo4j_authors")
                 failed_count += 1
                 processed += args.batch
                 save_neo4j_progress("authors", 0, processed, total_authors)
