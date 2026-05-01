@@ -1,0 +1,173 @@
+{
+  "name": "My workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        -64,
+        0
+      ],
+      "id": "87447c56-f330-49fe-b384-1de3c77946b5",
+      "name": "When chat message received",
+      "webhookId": "2554caaf-3ddc-452a-a766-134c95319c1f"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://0.0.0.0:8000/semantic-search",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "query",
+              "value": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('parameters0_Value', `Query string to do vector semantic search. Be as concise as possible. Prefer keywords`, 'string') }}"
+            },
+            {
+              "name": "top_k",
+              "value": "10"
+            },
+            {
+              "name": "use_reranker",
+              "value": "true"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.4,
+      "position": [
+        448,
+        224
+      ],
+      "id": "15934a73-8cda-44ac-804c-cc9bf409d7cc",
+      "name": "Semantic Search"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "ministral",
+          "mode": "list",
+          "cachedResultName": "ministral"
+        },
+        "responsesApiEnabled": false,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        160,
+        224
+      ],
+      "id": "5e40547f-c946-4213-ac61-c5346c68244b",
+      "name": "LLM",
+      "credentials": {
+        "openAiApi": {
+          "id": "nGCnjCgSMBVYsHDQ",
+          "name": "OpenAI account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionTTL": 86400,
+        "contextWindowLength": 10
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryRedisChat",
+      "typeVersion": 1.5,
+      "position": [
+        288,
+        224
+      ],
+      "id": "84e56162-72eb-4159-a094-6ae8ecee1062",
+      "name": "Redis Chat Memory",
+      "credentials": {
+        "redis": {
+          "id": "atQTQKym2IW6vyoY",
+          "name": "Redis account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.chatInput }}",
+        "options": {
+          "systemMessage": "- You are a helpful assistant that helps search for research papers from the databases (MSSQL, Neo4j and HBase)\n- If user asks unrelated question, respond with: \"Please ask relevant question\"\n- Prioritize markdown table over lists and lists over paragraphs\n- While calling the tool, pass \"query\" as a parameter that searches the database\n- Do not DDoS tool call. You can call max 5 times any given tool.",
+          "enableStreaming": true
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        224,
+        0
+      ],
+      "id": "3a607d12-8a25-402d-bf2b-bad743518592",
+      "name": "Search Agent"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "Search Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Semantic Search": {
+      "ai_tool": [
+        [
+          {
+            "node": "Search Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "LLM": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Search Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Redis Chat Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "Search Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "ae5be680-4b19-4704-a032-75c3be8da410",
+  "meta": {
+    "instanceId": "02fbe680e883038707dd85f50af11c331e0501011306a37f1cad4e2659081fb5"
+  },
+  "id": "KLSbNICMyiHeym6d",
+  "tags": []
+}
