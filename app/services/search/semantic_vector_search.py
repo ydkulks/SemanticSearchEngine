@@ -268,7 +268,13 @@ def semantic_vector_search(
 
     if use_reranker and fused:
         from app.services.reranker import rerank_results
-        logger.info(f"[Semantic-Vector] Applying reranking to {len(fused)} results")
-        fused = rerank_results("", fused, top_k=top_k)
+        # Only rerank top 10 results to limit latency
+        rerank_input = fused[:10]
+        logger.info(f"[Semantic-Vector] Applying reranking to {len(rerank_input)} of {len(fused)} results")
+        reranked = rerank_results(query, rerank_input, top_k=min(top_k, 10))
+        # Append remaining unreranked results (if any) after reranked ones
+        if len(fused) > 10:
+            reranked.extend(fused[10:])
+        fused = reranked
 
     return fused[:top_k], successful_sources

@@ -195,7 +195,14 @@ def hybrid_search(
     
     if use_reranker and fused:
         logger.info(f"[Hybrid] Applying BGE reranking to {len(fused)} results")
-        fused = rerank_results(query, fused, top_k=top_k)
+        # Only rerank top 10 results to limit latency
+        rerank_input = fused[:10]
+        logger.info(f"[Hybrid] Reranking top {len(rerank_input)} of {len(fused)} results")
+        reranked = rerank_results(query, rerank_input, top_k=min(top_k, 10))
+        # Append remaining unreranked results (if any) after reranked ones
+        if len(fused) > 10:
+            reranked.extend(fused[10:])
+        fused = reranked
         logger.info(f"[Hybrid] Reranking complete. Got {len(fused)} results")
     
     return fused[:top_k], successful_sources

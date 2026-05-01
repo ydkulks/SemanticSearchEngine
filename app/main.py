@@ -2,12 +2,11 @@ import logging
 from contextlib import asynccontextmanager
 
 logging.basicConfig(
-    level=logging.DEBUG,
+    level=logging.INFO,
     format='%(levelname)s - %(name)s - %(message)s',
 )
 
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -15,6 +14,9 @@ from app.config import settings
 from app.api.router import api_router
 
 logging.getLogger("neo4j").setLevel(logging.ERROR)
+logging.getLogger("httpcore").setLevel(logging.WARNING)
+logging.getLogger("httpx").setLevel(logging.WARNING)
+logging.getLogger("sentence_transformers").setLevel(logging.WARNING)
 
 
 @asynccontextmanager
