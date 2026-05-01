@@ -25,10 +25,12 @@ flowchart TB
  subgraph subGraph1["API Gateway"]
         FastAPI["FastAPI Service<br>/search, /health"]
   end
- subgraph subGraph2["Search Orchestration"]
+subgraph subGraph2["Search Orchestration"]
         Router["Query Router"]
         RRF["RRF Merger"]
         Reranker["BGE Reranker"]
+        N8N["n8n Agent<br/>(External)"]
+        Redis["Redis<br/>(n8n Memory)"]
   end
  subgraph subGraph3["Data Stores"]
         MSSQL[("MSSQL<br>Papers")]
@@ -46,6 +48,7 @@ flowchart TB
     HBase --> RRF
     RRF -- "top-K" --> Reranker
     Reranker -- final search response --> FastAPI
+    N8N -->|HTTP Tool| FastAPI
     subGraph0 --> subGraph1
 ```
 
@@ -112,6 +115,8 @@ sequenceDiagram
 | **HBase Metrics**     | Analytics, citation counts                  | HBase / HappyBase              |
 | **RRF Merger**        | Merge ranked results                        | Python                         |
 | **BGE Reranker**      | Cross-encoder reranking                     | BGE-reranker-base              |
+| **n8n Agent**         | External AI agent with RAG + memory           | n8n (external service)         |
+| **Chat Memory**       | Persistent conversation history             | Redis (via n8n nodes)          |
 
 ## **Tech Stack**
 
@@ -126,6 +131,8 @@ sequenceDiagram
 | **Reranker**      | FlagEmbedding           | latest   |
 | **Testing**       | pytest, httpx           | latest   |
 | **Container**     | Docker + docker-compose | latest   |
+| **AI Agent**       | n8n workflow automation | latest   |
+| **Chat Memory**    | Redis Chat Memory (n8n) | latest   |
 
 ---
 
@@ -133,15 +140,16 @@ sequenceDiagram
 
 ### Endpoints
 
-| Method | Endpoint      | Description                     |
-| ------ | ------------- | ------------------------------ |
-| `POST` | `/search`     | **Hybrid search** (RRF: MSSQL + Neo4j + HBase + RRF) |
-| `POST` | `/mssql/search` | MSSQL-only keyword search       |
-| `POST` | `/neo4j/search` | Neo4j graph search           |
-| `POST` | `/hbase/search` | HBase metrics endpoints       |
-| `GET`  | `/sources`    | List available sources           |
-| `GET`  | `/health`    | Health check                  |
-| `GET`  | `/docs`      | Swagger UI                   |
+| Method | Endpoint           | Description                                |
+| ------ | ------------------ | ----------------------------------------- |
+| `POST` | `/search`          | **Hybrid search** (RRF: MSSQL + Neo4j + HBase) |
+| `POST` | `/semantic-search` | **Semantic vector search** (MSSQL + Neo4j + HBase + RRF) |
+| `POST` | `/mssql/search`     | MSSQL-only keyword search                  |
+| `POST` | `/neo4j/search`    | Neo4j graph search                      |
+| `POST` | `/hbase/search`     | HBase metrics endpoints                  |
+| `GET`  | `/sources`         | List available sources                  |
+| `GET`  | `/health`         | Health check                         |
+| `GET`  | `/docs`           | Swagger UI                            |
 
 ### Request/Response Schemas
 
@@ -225,6 +233,7 @@ class SearchResponse(BaseModel):
 | Endpoint | Method | Description |
 |----------|--------|-------------|
 | `/search` | POST | **Hybrid search**: MSSQL + Neo4j + HBase → RRF fusion |
+| `/semantic-search` | POST | **Semantic vector search**: MSSQL + Neo4j + HBase → RRF fusion |
 | `/mssql/search` | POST | MSSQL-only keyword/full-text search |
 | `/neo4j/search` | POST | Neo4j graph search (citations, related, coauthors) |
 | `/hbase/search` | POST | HBase metrics (keyword, author, venue, paper stats) |
@@ -263,7 +272,15 @@ def rrf_fusion(results_list: list[list[PaperResult]], k: int = 60) -> list[dict]
 
 ```mermaid
 graph LR
-    subgraph "Parallel Retrieval"
+    subgraph "Semantic Vector Search (/semantic-search)"
+        Q2[Query] --> EMB[Embedder]
+        EMB --> VEC[Query Vector]
+        VEC --> MSSQL2[MSSQL Vector<br/>Top-20]
+        VEC --> N4J2[Neo4j Vector<br/>Top-20]
+        Q2 --> H2[HBase Metrics<br/>Top-20]
+    end
+
+    subgraph "Hybrid Search (/search)"
         Q1[Query] --> MSSQL1[MSSQL<br/>Top-20]
         Q1 --> N4J1[Neo4j<br/>Top-20]
         Q1 --> H1[HBase<br/>Top-20]
@@ -273,11 +290,14 @@ graph LR
         MSSQL1 --> RRF[RRF Merger<br/>k=60]
         N4J1 --> RRF
         H1 --> RRF
-        RRF --> RRF20[Top-50<br/>Merged]
+        MSSQL2 --> RRF
+        N4J2 --> RRF
+        H2 --> RRF
+        RRF --> RRF50[Top-50<br/>Merged]
     end
 
     subgraph "Rerank"
-        RRF20 --> RERANK{use_reranker?}
+        RRF50 --> RERANK{use_reranker?}
         RERANK -->|Yes| BGE[BGE Reranker<br/>Cross-Encoder]
         BGE --> FINAL[Final Top-K]
         RERANK -->|No| FINAL
@@ -395,6 +415,17 @@ SemanticSearchEngine/
 - [x] Graceful degradation (if one source fails, exclude from fusion)
 - [x] Fix RRF min_score filter bug (RRF scores are normalized, not raw similarity scores)
 
+#### Phase 4.2: Semantic Vector Search
+
+- [x] Add `/semantic-search` endpoint using vector similarity search
+- [x] Integrate MSSQL vector search (cosine similarity via numpy)
+- [x] Integrate Neo4j vector search (native vector index)
+- [x] Integrate HBase metrics into semantic search via RRF fusion
+- [x] Run MSSQL vector, Neo4j vector, and HBase searches in parallel
+- [x] Fix MSSQL embedding storage (JSON strings, not VECTOR type)
+- [x] Generate embeddings for all 10,000 MSSQL papers
+- [x] Generate embeddings for Neo4j papers and authors
+
 ---
 
 ### Phase 5: Reranking Integration
@@ -403,9 +434,22 @@ SemanticSearchEngine/
 - [x] Add reranking toggle (`use_reranker` flag)
 - [x] Wire reranker into hybrid search pipeline
 
-### Phase 6: Evaluation & Demo
+### Phase 6: n8n Agent Integration
 
-- [ ] Retrieval accuracy evaluation
+- [x] Install tools
+    - [x] n8n
+    - [x] Ollama with llama3.2:latest
+    - [x] Redis
+- [x] Create an agent workflow with `/search` as its tool
+- [x] Integrate Ollama for LLM
+- [x] Integrate Redis for memory
+- [x] Fine-tune system prompt for the agent
+- [x] Publish the workflow
+
+### Phase 7: Evaluation & Demo
+
+- [ ] Retrieval accuracy evaluation using DeepEval for `/semantic-search` endpoint
+- [ ] Reranker A/B testing with/without
 - [ ] Latency benchmarks
 
 ---
@@ -531,6 +575,11 @@ WHERE p1.id = 'source' AND p2.id = 'target'
 RETURN path
 ```
 
----
+## Things to change
 
-## **Search Scenarios**
+- [x] HBase should return author names not just their ID
+- [ ] Unified APIs
+    - [x] Get Papers
+    - [ ] Get Authors
+    - [ ] Get Citations
+    - [ ] Get Trends
