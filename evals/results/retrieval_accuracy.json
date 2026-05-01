@@ -1,0 +1,1414 @@
+{
+  "total_queries": 50,
+  "aggregate_ir_metrics": {
+    "precision@5": 0.13200000000000006,
+    "recall@5": 0.66,
+    "precision@10": 0.07400000000000004,
+    "recall@10": 0.74,
+    "mrr@10": 0.4812142857142856,
+    "ndcg@10": 0.4812142857142856
+  },
+  "deepeval_metrics": {},
+  "per_query_results": [
+    {
+      "query_id": 1,
+      "query": "The spectacular expansion of the Internet has led to the development of a new research problem in th",
+      "relevant_paper_ids": [
+        "5dd50ed43a55ac513761799c"
+      ],
+      "retrieved_ids": [
+        "56d82128dabfae2eeebd3c18",
+        "53e99785b7602d9701f42849",
+        "53e99796b7602d9701f5e500",
+        "53e99785b7602d9701f42847",
+        "53e9978db7602d9701f50661",
+        "53e99785b7602d9701f427a9",
+        "53e9abdbb7602d9703595d2e",
+        "53e99785b7602d9701f40628",
+        "53e9978db7602d9701f509f2",
+        "53e99784b7602d9701f3f6e8"
+      ],
+      "latency_ms": 7419.68,
+      "ir_metrics": {
+        "precision@5": 0.0,
+        "recall@5": 0.0,
+        "precision@10": 0.0,
+        "recall@10": 0.0,
+        "mrr@10": 0.0,
+        "ndcg@10": 0.0
+      }
+    },
+    {
+      "query_id": 2,
+      "query": "Exploratory Web Searching with Dynamic Taxonomies, Results Clustering and Visualization",
+      "relevant_paper_ids": [
+        "56d8496fdabfae2eeec89e1f"
+      ],
+      "retrieved_ids": [
+        "56d8496fdabfae2eeec89e1f",
+        "53e99785b7602d9701f40586",
+        "5de0e00bdf1a9c0c415c64ea",
+        "53e99785b7602d9701f41491",
+        "53e9be57b7602d9704b1803a",
+        "53e99785b7602d9701f418b2",
+        "53e99858b7602d97020904c5",
+        "53e99785b7602d9701f405e9",
+        "53e99c3db7602d97024ed8a7",
+        "53e99785b7602d9701f418c1"
+      ],
+      "latency_ms": 199.08,
+      "ir_metrics": {
+        "precision@5": 0.2,
+        "recall@5": 1.0,
+        "precision@10": 0.1,
+        "recall@10": 1.0,
+        "mrr@10": 1.0,
+        "ndcg@10": 1.0
+      }
+    },
+    {
+      "query_id": 3,
+      "query": "In this paper we explore frameworks for performing unit testing in Java",
+      "relevant_paper_ids": [
+        "53e9984bb7602d970207f565"
+      ],
+      "retrieved_ids": [
+        "53e9984bb7602d970207f565",
+        "53e99785b7602d9701f43eeb",
+        "56d8a141dabfae2eee672c1e",
+        "53e99784b7602d9701f3f913",
+        "53e9978eb7602d9701f5402c",
+        "53e99785b7602d9701f42c56",
+        "53e9978db7602d9701f4e88d",
+        "53e99784b7602d9701f3f642",
+        "557ea7f7f6678c77ea2249b3",
+        "53e99784b7602d9701f3f6b5"
+      ],
+      "latency_ms": 188.95,
+      "ir_metrics": {
+        "precision@5": 0.2,
+        "recall@5": 1.0,
+        "precision@10": 0.1,
+        "recall@10": 1.0,
+        "mrr@10": 1.0,
+        "ndcg@10": 1.0
+      }
+    },
+    {
+      "query_id": 4,
+      "query": "How many times have you gone to the grocery store but left the grocery list on the refrigerator door",
+      "relevant_paper_ids": [
+        "53e9ba38b7602d9704644f69"
+      ],
+      "retrieved_ids": [
+        "53e99785b7602d9701f43eec",
+        "53e99785b7602d9701f41502",
+        "53e99792b7602d9701f569b4",
+        "53e99785b7602d9701f4059c",
+        "53e9978ab7602d9701f4afde",
+        "53e99784b7602d9701f3f627",
+        "5ff686f5d4150a363cc3d802",
+        "53e99785b7602d9701f42c54",
+        "56d8f348dabfae2eee82af6b",
+        "5ce2d03bced107d4c63589b0"
+      ],
+      "latency_ms": 212.14,
+      "ir_metrics": {
+        "precision@5": 0.0,
+        "recall@5": 0.0,
+        "precision@10": 0.0,
+        "recall@10": 0.0,
+        "mrr@10": 0.0,
+        "ndcg@10": 0.0
+      }
+    },
+    {
+      "query_id": 5,
+      "query": "Calderaland",
+      "relevant_paper_ids": [
+        "53e9978ab7602d9701f45790"
+      ],
+      "retrieved_ids": [
+        "53e99784b7602d9701f3f963",
+        "53e99785b7602d9701f43ec9",
+        "53e99785b7602d9701f405f9",
+        "53e99785b7602d9701f405fa",
+        "53e99785b7602d9701f405fc",
+        "53e99785b7602d9701f4084e",
+        "53e9978ab7602d9701f45790",
+        "53e9978ab7602d9701f45799",
+        "53e99792b7602d9701f58247",
+        "53e9978ab7602d9701f458ff"
+      ],
+      "latency_ms": 192.59,
+      "ir_metrics": {
+        "precision@5": 0.0,
+        "recall@5": 0.0,
+        "precision@10": 0.1,
+        "recall@10": 1.0,
+        "mrr@10": 0.14285714285714285,
+        "ndcg@10": 0.14285714285714285
+      }
+    },
+    {
+      "query_id": 6,
+      "query": "We study sorting machines consisting of a stack and a pop stack in series, with or without a queue b",
+      "relevant_paper_ids": [
+        "56d89d85dabfae2eee4a858b"
+      ],
+      "retrieved_ids": [
+        "56d89d85dabfae2eee4a858b",
+        "53e99784b7602d9701f3f7ff",
+        "5e451e433a55acfaed73882c",
+        "53e99785b7602d9701f414d2",
+        "56d82eb9dabfae2eee145f7e",
+        "53e99785b7602d9701f40767",
+        "53e9b206b7602d9703c9aca4",
+        "53e99785b7602d9701f41582",
+        "53e9b783b7602d9704327015",
+        "53e99785b7602d9701f40583"
+      ],
+      "latency_ms": 219.5,
+      "ir_metrics": {
+        "precision@5": 0.2,
+        "recall@5": 1.0,
+        "precision@10": 0.1,
+        "recall@10": 1.0,
+        "mrr@10": 1.0,
+        "ndcg@10": 1.0
+      }
+    },
+    {
+      "query_id": 7,
+      "query": "Incumbent and LSA Licensee Classification Through Distributed Cognitive Networks",
+      "relevant_paper_ids": [
+        "5698fe5a0cf2e100919509d9"
+      ],
+      "retrieved_ids": [
+        "5698fe5a0cf2e100919509d9",
+        "53e99785b7602d9701f41a66",
+        "53e99cb5b7602d970256b56c",
+        "53e99785b7602d9701f42b2d",
+        "53e99aa6b7602d9702320a4d",
+        "53e99785b7602d9701f41655",
+        "5f97e6b391e0112e0cda7b18",
+        "53e99784b7602d9701f3eaf2",
+        "5fb24ff191e01186d3f5dee4",
+        "53e99785b7602d9701f40554"
+      ],
+      "latency_ms": 226.57,
+      "ir_metrics": {
+        "precision@5": 0.2,
+        "recall@5": 1.0,
+        "precision@10": 0.1,
+        "recall@10": 1.0,
+        "mrr@10": 1.0,
+        "ndcg@10": 1.0
+      }
+    },
+    {
+      "query_id": 8,
+      "query": "Due to the lack of face to face interaction in online learning environment, this article aims essent",
+      "relevant_paper_ids": [
+        "5ce3afbaced107d4c65f7eb3"
+      ],
+      "retrieved_ids": [
+        "61bdb6895244ab9dcb11997f",
+        "53e99785b7602d9701f42864",
+        "5c757dc4f56def9798b1da35",
+        "53e99785b7602d9701f4150f",
+        "55461250d19fa96dd695aca7",
+        "53e99784b7602d9701f3f626",
+        "5ce2d1f5ced107d4c6485cb1",
+        "53e99784b7602d9701f3f65a",
+        "56d8e5dbdabfae2eee30aa94",
+        "53e99785b7602d9701f414b1"
+      ],
+      "latency_ms": 213.51,
+      "ir_metrics": {
+        "precision@5": 0.0,
+        "recall@5": 0.0,
+        "precision@10": 0.0,
+        "recall@10": 0.0,
+        "mrr@10": 0.0,
+        "ndcg@10": 0.0
+      }
+    },
+    {
+      "query_id": 9,
+      "query": "Finding a Repository with the Help of Machine-Actionable DMPs: Opportunities",
+      "relevant_paper_ids": [
+        "5ff68176d4150a363cb6e262"
+      ],
+      "retrieved_ids": [
+        "5ff68176d4150a363cb6e262",
+        "53e99785b7602d9701f418b1",
+        "5ff68ab0d4150a363ccd5adf",
+        "53e99785b7602d9701f418c1",
+        "53e99796b7602d9701f5cc14",
+        "53e99785b7602d9701f405c5",
+        "56d89294dabfae2eeef406a2",
+        "53e99785b7602d9701f42b2d",
+        "53e99a49b7602d97022ac258",
+        "53e99785b7602d9701f414b8"
+      ],
+      "latency_ms": 180.45,
+      "ir_metrics": {
+        "precision@5": 0.2,
+        "recall@5": 1.0,
+        "precision@10": 0.1,
+        "recall@10": 1.0,
+        "mrr@10": 1.0,
+        "ndcg@10": 1.0
+      }
+    },
+    {
+      "query_id": 10,
+      "query": "In this note we obtain upper bounds on the number of hyperedges in 3-uniform hypergraphs not contain",
+      "relevant_paper_ids": [
+        "5ce2d210ced107d4c64980dc"
+      ],
+      "retrieved_ids": [
+        "5c754fa2f56def979856a8ca",
+        "53e99784b7602d9701f3f6ce",
+        "5fbe726891e011e6e11b3e9b",
+        "53e99785b7602d9701f414ac",
+        "53e9b4fab7602d9704028d6c",
+        "53e99784b7602d9701f3f669",
+        "5c7577ddf56def9798a512c1",
+        "53e99785b7602d9701f414c4",
+        "5f29449591e011376d9c5fde",
+        "53e99785b7602d9701f40553"
+      ],
+      "latency_ms": 236.92,
+      "ir_metrics": {
+        "precision@5": 0.0,
+        "recall@5": 0.0,
+        "precision@10": 0.0,
+        "recall@10": 0.0,
+        "mrr@10": 0.0,
+        "ndcg@10": 0.0
+      }
+    },
+    {
+      "query_id": 11,
+      "query": "UIST '21: The Adjunct Publication of the 34th Annual ACM",
+      "relevant_paper_ids": [
+        "634826be90e50fcafd9de223"
+      ],
+      "retrieved_ids": [
+        "53e99785b7602d9701f42c71",
+        "634826bf90e50fcafd9de26b",
+        "634826be90e50fcafd9de223",
+        "53e99785b7602d9701f418c2",
+        "634826be90e50fcafd9de225",
+        "53e99785b7602d9701f43ee5",
+        "5e54f0c393d709897c721b98",
+        "53e99784b7602d9701f3f960",
+        "53e99796b7602d9701f5c401",
+        "53e99784b7602d9701f3f7c6"
+      ],
+      "latency_ms": 182.36,
+      "ir_metrics": {
+        "precision@5": 0.2,
+        "recall@5": 1.0,
+        "precision@10": 0.1,
+        "recall@10": 1.0,
+        "mrr@10": 0.3333333333333333,
+        "ndcg@10": 0.3333333333333333
+      }
+    },
+    {
+      "query_id": 12,
+      "query": "The goal of blockmodeling is to reduce a large, potentially incoherent network to asmaller comprehe",
+      "relevant_paper_ids": [
+        "53e99796b7602d9701f5d69e"
+      ],
+      "retrieved_ids": [
+        "53e99785b7602d9701f440a4",
+        "53e99784b7602d9701f3f7ff",
+        "53e99796b7602d9701f5d69e",
+        "53e99785b7602d9701f427c5",
+        "53e99df0b7602d97026b23a5",
+        "53e99785b7602d9701f4277a",
+        "53e99796b7602d9701f5f68b",
+        "53e99785b7602d9701f40847",
+        "5d0b00228607575390fad71d",
+        "53e99784b7602d9701f3f704"
+      ],
+      "latency_ms": 201.13,
+      "ir_metrics": {
+        "precision@5": 0.2,
+        "recall@5": 1.0,
+        "precision@10": 0.1,
+        "recall@10": 1.0,
+        "mrr@10": 0.3333333333333333,
+        "ndcg@10": 0.3333333333333333
+      }
+    },
+    {
+      "query_id": 13,
+      "query": "We present a new construction method for a doubly exponential class of binary codes with the paramet",
+      "relevant_paper_ids": [
+        "6340f7d590e50fcafdd3703a"
+      ],
+      "retrieved_ids": [
+        "53e9b8c7b7602d97044aa504",
+        "53e99785b7602d9701f41582",
+        "6340f7d590e50fcafdd3703a",
+        "53e99785b7602d9701f40767",
+        "5ca5deb5e1cd8e2c77f98c93",
+        "53e99785b7602d9701f414ac",
+        "56d91189dabfae2eee3e44b9",
+        "53e99784b7602d9701f3f669",
+        "53e9a4e5b7602d9702e08a95",
+        "53e99785b7602d9701f414ab"
+      ],
+      "latency_ms": 223.66,
+      "ir_metrics": {
+        "precision@5": 0.2,
+        "recall@5": 1.0,
+        "precision@10": 0.1,
+        "recall@10": 1.0,
+        "mrr@10": 0.3333333333333333,
+        "ndcg@10": 0.3333333333333333
+      }
+    },
+    {
+      "query_id": 14,
+      "query": "This document describes the S/KEY* One-Time Password system as released for public use by Bellcore a",
+      "relevant_paper_ids": [
+        "53e9b672b7602d97041da834"
+      ],
+      "retrieved_ids": [
+        "53e9b672b7602d97041da834",
+        "53e99785b7602d9701f42822",
+        "56d9118edabfae2eee3e68e6",
+        "53e99785b7602d9701f4147a",
+        "53e9aa61b7602d97033d4b63",
+        "53e99785b7602d9701f427c5",
+        "605aa0c7e4510cd7c86926d0",
+        "53e99785b7602d9701f4292f",
+        "53e9999eb7602d97021e1e61",
+        "53e99785b7602d9701f4147e"
+      ],
+      "latency_ms": 222.49,
+      "ir_metrics": {
+        "precision@5": 0.2,
+        "recall@5": 1.0,
+        "precision@10": 0.1,
+        "recall@10": 1.0,
+        "mrr@10": 1.0,
+        "ndcg@10": 1.0
+      }
+    },
+    {
+      "query_id": 15,
+      "query": "America's Front Porch-The Public Library",
+      "relevant_paper_ids": [
+        "56d9142cdabfae2eee4ebada"
+      ],
+      "retrieved_ids": [
+        "53e99785b7602d9701f43eec",
+        "56d9142cdabfae2eee4ebada",
+        "56d9142cdabfae2eee4ebaf4",
+        "53e99785b7602d9701f4147a",
+        "56d9142cdabfae2eee4ebad4",
+        "53e99785b7602d9701f41487",
+        "56d9142cdabfae2eee4ebceb",
+        "53e99784b7602d9701f3f7b3",
+        "53e9a169b7602d9702a5af6a",
+        "53e99785b7602d9701f4085a"
+      ],
+      "latency_ms": 197.19,
+      "ir_metrics": {
+        "precision@5": 0.2,
+        "recall@5": 1.0,
+        "precision@10": 0.1,
+        "recall@10": 1.0,
+        "mrr@10": 0.5,
+        "ndcg@10": 0.5
+      }
+    },
+    {
+      "query_id": 16,
+      "query": "Classification-Aware Path Planning of Network of Robots",
+      "relevant_paper_ids": [
+        "61dec0d991e01162fe096056"
+      ],
+      "retrieved_ids": [
+        "61dec0d991e01162fe096056",
+        "53e99784b7602d9701f3f600",
+        "56d87c04dabfae2eee4256e0",
+        "53e99785b7602d9701f414ac",
+        "557da0bb6fee0fe990ca2be5",
+        "53e99785b7602d9701f414b1",
+        "5f6dc87291e0115337005600",
+        "53e99785b7602d9701f40848",
+        "557c70bef66765fbb46b3702",
+        "53e99785b7602d9701f405cd"
+      ],
+      "latency_ms": 195.26,
+      "ir_metrics": {
+        "precision@5": 0.2,
+        "recall@5": 1.0,
+        "precision@10": 0.1,
+        "recall@10": 1.0,
+        "mrr@10": 1.0,
+        "ndcg@10": 1.0
+      }
+    },
+    {
+      "query_id": 17,
+      "query": "We investigate a simple algorithm that combines multiband processing and least squares fits to estim",
+      "relevant_paper_ids": [
+        "53e9aa61b7602d97033d503b"
+      ],
+      "retrieved_ids": [
+        "53e9aa61b7602d97033d503b",
+        "53e99785b7602d9701f406b3",
+        "55465e260cf2939c2fee9e98",
+        "53e99784b7602d9701f3f645",
+        "55c350e7683a451f09d2b4cc",
+        "53e99785b7602d9701f427da",
+        "5c757de4f56def9798b32ce5",
+        "53e99785b7602d9701f43eeb",
+        "558c45d1e4b00c3c48e14aad",
+        "53e99784b7602d9701f3f7ff"
+      ],
+      "latency_ms": 183.12,
+      "ir_metrics": {
+        "precision@5": 0.2,
+        "recall@5": 1.0,
+        "precision@10": 0.1,
+        "recall@10": 1.0,
+        "mrr@10": 1.0,
+        "ndcg@10": 1.0
+      }
+    },
+    {
+      "query_id": 18,
+      "query": "Systems principles: foundation for the SoSE methodology",
+      "relevant_paper_ids": [
+        "56d90eeadabfae2eee2ed53c"
+      ],
+      "retrieved_ids": [
+        "56d90eeadabfae2eee2ed53c",
+        "53e99784b7602d9701f3f642",
+        "56d90eeadabfae2eee2ed540",
+        "53e99784b7602d9701f3eaf2",
+        "5c755282f56def97985ed0dd",
+        "53e99785b7602d9701f4059a",
+        "55c351bc683a451f09d2b7b9",
+        "53e99785b7602d9701f427c5",
+        "56d90eeadabfae2eee2ed515",
+        "53e99785b7602d9701f42b2d"
+      ],
+      "latency_ms": 193.83,
+      "ir_metrics": {
+        "precision@5": 0.2,
+        "recall@5": 1.0,
+        "precision@10": 0.1,
+        "recall@10": 1.0,
+        "mrr@10": 1.0,
+        "ndcg@10": 1.0
+      }
+    },
+    {
+      "query_id": 19,
+      "query": "Component based development is recognized now as a powerful tool to manage actual systems' technolog",
+      "relevant_paper_ids": [
+        "53e99cb5b7602d9702566da5"
+      ],
+      "retrieved_ids": [
+        "53e9aa0fb7602d970337c628",
+        "53e99785b7602d9701f42c7a",
+        "53e9ac18b7602d97035d9180",
+        "53e99784b7602d9701f3f6e8",
+        "558ab9dee4b037c08758ca8b",
+        "53e99785b7602d9701f427c5",
+        "53e9978ab7602d9701f45966",
+        "53e99784b7602d9701f3f411",
+        "5488e67145ce147a86e621ea",
+        "53e99785b7602d9701f41556"
+      ],
+      "latency_ms": 176.91,
+      "ir_metrics": {
+        "precision@5": 0.0,
+        "recall@5": 0.0,
+        "precision@10": 0.0,
+        "recall@10": 0.0,
+        "mrr@10": 0.0,
+        "ndcg@10": 0.0
+      }
+    },
+    {
+      "query_id": 20,
+      "query": "In this paper the problems involved with high-level synthesis of ASIC regular arrays for multi-dimen",
+      "relevant_paper_ids": [
+        "53e9b3ceb7602d9703ebbadb"
+      ],
+      "retrieved_ids": [
+        "53e9b3ceb7602d9703ebbadb",
+        "53e99785b7602d9701f418bf",
+        "53e9a00ab7602d97028efefb",
+        "53e99784b7602d9701f3e922",
+        "53e9bd46b7602d97049d675a",
+        "53e99784b7602d9701f3f956",
+        "53e9b861b7602d9704426e22",
+        "53e99784b7602d9701f3f7ff",
+        "61debcc95244ab9dcbe90b02",
+        "53e99784b7602d9701f3f958"
+      ],
+      "latency_ms": 225.35,
+      "ir_metrics": {
+        "precision@5": 0.2,
+        "recall@5": 1.0,
+        "precision@10": 0.1,
+        "recall@10": 1.0,
+        "mrr@10": 1.0,
+        "ndcg@10": 1.0
+      }
+    },
+    {
+      "query_id": 21,
+      "query": "Maintaining security in wireless systems has been a challenge due to the broadcast nature of wireles",
+      "relevant_paper_ids": [
+        "55c33d88683a451f09d27469"
+      ],
+      "retrieved_ids": [
+        "558bde11e4b00c3c48deeeb9",
+        "53e99784b7602d9701f3f704",
+        "55c33d88683a451f09d27469",
+        "53e99785b7602d9701f427c5",
+        "56d83fcedabfae2eee7ee203",
+        "53e99785b7602d9701f42849",
+        "557c8dfef66765fbb46b6b55",
+        "53e99785b7602d9701f405f8",
+        "53e9ace9b7602d97036c813e",
+        "53e99784b7602d9701f3f613"
+      ],
+      "latency_ms": 216.57,
+      "ir_metrics": {
+        "precision@5": 0.2,
+        "recall@5": 1.0,
+        "precision@10": 0.1,
+        "recall@10": 1.0,
+        "mrr@10": 0.3333333333333333,
+        "ndcg@10": 0.3333333333333333
+      }
+    },
+    {
+      "query_id": 22,
+      "query": "Firewalls are critical security devices handling all traffic in and out of a network",
+      "relevant_paper_ids": [
+        "53e99796b7602d9701f5e10d"
+      ],
+      "retrieved_ids": [
+        "53e99784b7602d9701f3f704",
+        "53e99796b7602d9701f5e0da",
+        "53e99785b7602d9701f414c8",
+        "53e99796b7602d9701f5f97d",
+        "53e99785b7602d9701f427c5",
+        "53e99796b7602d9701f5e9e5",
+        "53e99785b7602d9701f40554",
+        "53e99796b7602d9701f5da3c",
+        "53e99784b7602d9701f3f613",
+        "53e99796b7602d9701f5e10d"
+      ],
+      "latency_ms": 190.63,
+      "ir_metrics": {
+        "precision@5": 0.0,
+        "recall@5": 0.0,
+        "precision@10": 0.1,
+        "recall@10": 1.0,
+        "mrr@10": 0.1,
+        "ndcg@10": 0.1
+      }
+    },
+    {
+      "query_id": 23,
+      "query": "An efficient direct method for the computation of a length-N discrete cosine transform (DCT) given t",
+      "relevant_paper_ids": [
+        "53e9abc4b7602d970357781e"
+      ],
+      "retrieved_ids": [
+        "53e99ffcb7602d97028de171",
+        "53e99785b7602d9701f427da",
+        "53e9b4fab7602d9704029cee",
+        "53e99784b7602d9701f3f95a",
+        "53e9abc4b7602d970357781e",
+        "53e99785b7602d9701f41582",
+        "53e9b413b7602d9703f0854e",
+        "53e99784b7602d9701f3f645",
+        "53e9abbfb7602d9703571d7e",
+        "53e99784b7602d9701f3e3f4"
+      ],
+      "latency_ms": 246.17,
+      "ir_metrics": {
+        "precision@5": 0.2,
+        "recall@5": 1.0,
+        "precision@10": 0.1,
+        "recall@10": 1.0,
+        "mrr@10": 0.2,
+        "ndcg@10": 0.2
+      }
+    },
+    {
+      "query_id": 24,
+      "query": "We propose an extension over the traditional call graph to incorporate edges representing control fl",
+      "relevant_paper_ids": [
+        "55465ecc0cf2939c2feec7bb"
+      ],
+      "retrieved_ids": [
+        "53e99809b7602d9702020b74",
+        "53e99785b7602d9701f406b2",
+        "53e99796b7602d9701f5d37e",
+        "53e99785b7602d9701f40848",
+        "56d84783dabfae2eeeb9d489",
+        "53e99784b7602d9701f3f6ce",
+        "53e9ae11b7602d9703822571",
+        "53e99785b7602d9701f40847",
+        "5ea82d649fced0a24b728094",
+        "53e99785b7602d9701f414ac"
+      ],
+      "latency_ms": 223.17,
+      "ir_metrics": {
+        "precision@5": 0.0,
+        "recall@5": 0.0,
+        "precision@10": 0.0,
+        "recall@10": 0.0,
+        "mrr@10": 0.0,
+        "ndcg@10": 0.0
+      }
+    },
+    {
+      "query_id": 25,
+      "query": "Geocomputation",
+      "relevant_paper_ids": [
+        "53e99785b7602d9701f40628"
+      ],
+      "retrieved_ids": [
+        "53e99785b7602d9701f40628",
+        "53e99785b7602d9701f41655",
+        "53e9978db7602d9701f4f445",
+        "53e99785b7602d9701f4061f",
+        "53e99792b7602d9701f5440a",
+        "53e99785b7602d9701f4085a",
+        "53e9978ab7602d9701f4cb44",
+        "53e99785b7602d9701f4147e",
+        "53e9978ab7602d9701f4cb8c",
+        "53e99785b7602d9701f4147f"
+      ],
+      "latency_ms": 153.56,
+      "ir_metrics": {
+        "precision@5": 0.2,
+        "recall@5": 1.0,
+        "precision@10": 0.1,
+        "recall@10": 1.0,
+        "mrr@10": 1.0,
+        "ndcg@10": 1.0
+      }
+    },
+    {
+      "query_id": 26,
+      "query": "According to our current conception of physics, any valid physical theory is supposed to describe th",
+      "relevant_paper_ids": [
+        "5c757dc4f56def9798b1d903"
+      ],
+      "retrieved_ids": [
+        "53e99785b7602d9701f405f5",
+        "53e9b74fb7602d97042ee99b",
+        "53e99785b7602d9701f418d0",
+        "56d8556fdabfae2eee245a83",
+        "53e99784b7602d9701f3f760",
+        "53e99dd4b7602d97026981ea",
+        "53e99785b7602d9701f4059a",
+        "5c757dc4f56def9798b1d903",
+        "53e99784b7602d9701f3f96f",
+        "53e9b58db7602d97040cee08"
+      ],
+      "latency_ms": 228.44,
+      "ir_metrics": {
+        "precision@5": 0.0,
+        "recall@5": 0.0,
+        "precision@10": 0.1,
+        "recall@10": 1.0,
+        "mrr@10": 0.125,
+        "ndcg@10": 0.125
+      }
+    },
+    {
+      "query_id": 27,
+      "query": "More on the linear k-arboricity of regular graphs",
+      "relevant_paper_ids": [
+        "53e9a0e6b7602d97029cd08e"
+      ],
+      "retrieved_ids": [
+        "53e9a0e6b7602d97029cd08e",
+        "53e99784b7602d9701f3f669",
+        "53e997c6b7602d9701fb6ee6",
+        "53e99785b7602d9701f414ac",
+        "56d8b7f9dabfae2eee17d5cd",
+        "53e99784b7602d9701f3f6ce",
+        "53e9aad1b7602d970344f756",
+        "53e99785b7602d9701f4054f",
+        "56d8b64cdabfae2eee0aee58",
+        "53e99785b7602d9701f406b2"
+      ],
+      "latency_ms": 232.54,
+      "ir_metrics": {
+        "precision@5": 0.2,
+        "recall@5": 1.0,
+        "precision@10": 0.1,
+        "recall@10": 1.0,
+        "mrr@10": 1.0,
+        "ndcg@10": 1.0
+      }
+    },
+    {
+      "query_id": 28,
+      "query": "The European Microcomputer-Chess Championship",
+      "relevant_paper_ids": [
+        "55a426e8612ca64868891ab7"
+      ],
+      "retrieved_ids": [
+        "55a426e8612ca64868891ab7",
+        "53e99785b7602d9701f41520",
+        "53e9978ab7602d9701f46510",
+        "53e99785b7602d9701f42c6d",
+        "53e9978ab7602d9701f45803",
+        "53e99785b7602d9701f40628",
+        "53e9978ab7602d9701f46511",
+        "53e99785b7602d9701f43eeb",
+        "53e9ab3db7602d97034cad78",
+        "53e99785b7602d9701f4054f"
+      ],
+      "latency_ms": 229.07,
+      "ir_metrics": {
+        "precision@5": 0.2,
+        "recall@5": 1.0,
+        "precision@10": 0.1,
+        "recall@10": 1.0,
+        "mrr@10": 1.0,
+        "ndcg@10": 1.0
+      }
+    },
+    {
+      "query_id": 29,
+      "query": "Federated learning enables multiple users to build a joint model by sharing their model updates (g",
+      "relevant_paper_ids": [
+        "60a77d5691e011f90a51dcbd"
+      ],
+      "retrieved_ids": [
+        "5fb24ff191e01186d3f5dee4",
+        "53e99785b7602d9701f4061f",
+        "5d5bc4c03a55ac7b2f194493",
+        "53e99785b7602d9701f41556",
+        "61cedd3b5244ab9dcb562833",
+        "53e99785b7602d9701f418b1",
+        "60a77d5691e011f90a51dcbd",
+        "53e99785b7602d9701f42c7a",
+        "6340f3ef90e50fcafdd0d80b",
+        "53e99785b7602d9701f418b2"
+      ],
+      "latency_ms": 214.36,
+      "ir_metrics": {
+        "precision@5": 0.0,
+        "recall@5": 0.0,
+        "precision@10": 0.1,
+        "recall@10": 1.0,
+        "mrr@10": 0.14285714285714285,
+        "ndcg@10": 0.14285714285714285
+      }
+    },
+    {
+      "query_id": 30,
+      "query": "Understanding the dynamics of fishing effort plays a key role in predicting the impacts of regulator",
+      "relevant_paper_ids": [
+        "53e9b62eb7602d970418ad0d"
+      ],
+      "retrieved_ids": [
+        "53e99784b7602d9701f3f733",
+        "53e99785b7602d9701f42c5b",
+        "53e99785b7602d9701f42c7a",
+        "53e99785b7602d9701f427e2",
+        "53e9b62eb7602d970418ad0d",
+        "5ff1c6dc19519e9c395e8523",
+        "53e99785b7602d9701f41524",
+        "5eede1bd91e0116a822a496e",
+        "53e99785b7602d9701f414cb",
+        "56d8d1c8dabfae2eeeaa0a91"
+      ],
+      "latency_ms": 211.17,
+      "ir_metrics": {
+        "precision@5": 0.2,
+        "recall@5": 1.0,
+        "precision@10": 0.1,
+        "recall@10": 1.0,
+        "mrr@10": 0.2,
+        "ndcg@10": 0.2
+      }
+    },
+    {
+      "query_id": 31,
+      "query": "The Cost of IEEE Arithmetic in Secure Computation",
+      "relevant_paper_ids": [
+        "605aa237e4510cd7c86b1920"
+      ],
+      "retrieved_ids": [
+        "53e99784b7602d9701f3f7ff",
+        "605aa237e4510cd7c86b1920",
+        "53e99785b7602d9701f43edb",
+        "53e9b1eab7602d9703c7bb0e",
+        "53e99784b7602d9701f3f64d",
+        "5fae6a56d4150a363ce6009e",
+        "53e99785b7602d9701f41582",
+        "53e9a906b7602d9703258142",
+        "53e99785b7602d9701f4277b",
+        "53e9b615b7602d970416d8cf"
+      ],
+      "latency_ms": 199.15,
+      "ir_metrics": {
+        "precision@5": 0.2,
+        "recall@5": 1.0,
+        "precision@10": 0.1,
+        "recall@10": 1.0,
+        "mrr@10": 0.5,
+        "ndcg@10": 0.5
+      }
+    },
+    {
+      "query_id": 32,
+      "query": "We provide a new foundation for combinatorial commutative algebra and Stanley-Reisner theory using",
+      "relevant_paper_ids": [
+        "5f2948a591e011376d9c6054"
+      ],
+      "retrieved_ids": [
+        "5f2948a591e011376d9c6054",
+        "53e99785b7602d9701f43ecb",
+        "56d8aae0dabfae2eeeb1e06d",
+        "53e99784b7602d9701f3f669",
+        "5c8fc8a14895d9cbc6621388",
+        "53e99785b7602d9701f40767",
+        "5c755440f56def9798648359",
+        "53e99785b7602d9701f4059a",
+        "53e9a48eb7602d9702dab975",
+        "53e99784b7602d9701f3f6b5"
+      ],
+      "latency_ms": 206.92,
+      "ir_metrics": {
+        "precision@5": 0.2,
+        "recall@5": 1.0,
+        "precision@10": 0.1,
+        "recall@10": 1.0,
+        "mrr@10": 1.0,
+        "ndcg@10": 1.0
+      }
+    },
+    {
+      "query_id": 33,
+      "query": "Expect virtual immortality through enduring, realistic avatars based on published work and archived",
+      "relevant_paper_ids": [
+        "53e99803b7602d970201438c"
+      ],
+      "retrieved_ids": [
+        "53e9978db7602d9701f51e32",
+        "53e99784b7602d9701f3f6cd",
+        "53e99796b7602d9701f5b855",
+        "53e99784b7602d9701f3e4f4",
+        "53e9a7ebb7602d970312cfed",
+        "53e99785b7602d9701f43ebb",
+        "5eede1bd91e0116a822a4970",
+        "53e99785b7602d9701f427f8",
+        "53e9978ab7602d9701f49f7c",
+        "53e99784b7602d9701f3f692"
+      ],
+      "latency_ms": 244.36,
+      "ir_metrics": {
+        "precision@5": 0.0,
+        "recall@5": 0.0,
+        "precision@10": 0.0,
+        "recall@10": 0.0,
+        "mrr@10": 0.0,
+        "ndcg@10": 0.0
+      }
+    },
+    {
+      "query_id": 34,
+      "query": "Soft robotic actuators are well-suited for interactions with the human body, particularly in rehabil",
+      "relevant_paper_ids": [
+        "5db92a9b47c8f7664620d2fc"
+      ],
+      "retrieved_ids": [
+        "53e9a8dbb7602d970322a11c",
+        "53e99784b7602d9701f3f958",
+        "61dec10d91e01162fe0967e2",
+        "53e99785b7602d9701f405cd",
+        "5db92a9b47c8f7664620d2fc",
+        "53e99785b7602d9701f414f6",
+        "5ecbc8899fced0a24b51ee77",
+        "53e99785b7602d9701f414b1",
+        "53e997e9b7602d9701fe682c",
+        "53e99785b7602d9701f43d01"
+      ],
+      "latency_ms": 241.61,
+      "ir_metrics": {
+        "precision@5": 0.2,
+        "recall@5": 1.0,
+        "precision@10": 0.1,
+        "recall@10": 1.0,
+        "mrr@10": 0.2,
+        "ndcg@10": 0.2
+      }
+    },
+    {
+      "query_id": 35,
+      "query": "In this contribution, variance properties of L\"2 model reduction are studied",
+      "relevant_paper_ids": [
+        "53e9a9f6b7602d970335d66e"
+      ],
+      "retrieved_ids": [
+        "53e9a9f6b7602d970335d66e",
+        "53e99785b7602d9701f42c6f",
+        "558c46c2e4b02b9f07a62737",
+        "53e99785b7602d9701f427da",
+        "53e99e54b7602d9702719770",
+        "53e99785b7602d9701f40847",
+        "53e9a28ab7602d9702b9155d",
+        "53e99785b7602d9701f4299d",
+        "56d8ce73dabfae2eee90113b",
+        "53e99785b7602d9701f42ec7"
+      ],
+      "latency_ms": 231.07,
+      "ir_metrics": {
+        "precision@5": 0.2,
+        "recall@5": 1.0,
+        "precision@10": 0.1,
+        "recall@10": 1.0,
+        "mrr@10": 1.0,
+        "ndcg@10": 1.0
+      }
+    },
+    {
+      "query_id": 36,
+      "query": "Current trends in Nan electro magnetics - a new field of research synthesizing classical radio physi",
+      "relevant_paper_ids": [
+        "563387e90cf2549603296f60"
+      ],
+      "retrieved_ids": [
+        "53e9978db7602d9701f4d19c",
+        "53e99785b7602d9701f42c5c",
+        "563387e90cf2549603296f60",
+        "53e99785b7602d9701f414fa",
+        "53e9a3e7b7602d9702cffb99",
+        "53e99785b7602d9701f432be",
+        "53e9978ab7602d9701f4cb6a",
+        "53e99785b7602d9701f429d9",
+        "56d9118cdabfae2eee3e5b99",
+        "53e99784b7602d9701f3e922"
+      ],
+      "latency_ms": 210.73,
+      "ir_metrics": {
+        "precision@5": 0.2,
+        "recall@5": 1.0,
+        "precision@10": 0.1,
+        "recall@10": 1.0,
+        "mrr@10": 0.3333333333333333,
+        "ndcg@10": 0.3333333333333333
+      }
+    },
+    {
+      "query_id": 37,
+      "query": "We demonstrate an InP/Silicon integrated ECL using a photonic wirebond as intra-cavity coupling elem",
+      "relevant_paper_ids": [
+        "5ea012b99fced0a24b9c472a"
+      ],
+      "retrieved_ids": [
+        "5ea012b99fced0a24b9c472a",
+        "53e99784b7602d9701f3e922",
+        "56d8afcedabfae2eeed818dd",
+        "53e99785b7602d9701f432be",
+        "558c4ae9e4b02b9f07a64322",
+        "53e99785b7602d9701f42793",
+        "557c769f6feeaa8086d9ef33",
+        "53e99785b7602d9701f42890",
+        "5e2adcb1df1a9c0c41e80063",
+        "53e99785b7602d9701f40278"
+      ],
+      "latency_ms": 241.81,
+      "ir_metrics": {
+        "precision@5": 0.2,
+        "recall@5": 1.0,
+        "precision@10": 0.1,
+        "recall@10": 1.0,
+        "mrr@10": 1.0,
+        "ndcg@10": 1.0
+      }
+    },
+    {
+      "query_id": 38,
+      "query": "In recent years, the scale of enrollment in colleges and universities continues to expand",
+      "relevant_paper_ids": [
+        "5c75705cf56def97986e5b0f"
+      ],
+      "retrieved_ids": [
+        "55c34114683a451f09d280bd",
+        "53e99785b7602d9701f4150f",
+        "5ff6871ad4150a363cc44cae",
+        "53e99785b7602d9701f42c6e",
+        "5ce2d223ced107d4c64a5087",
+        "53e99784b7602d9701f3f636",
+        "5ce2d1b2ced107d4c6457e0c",
+        "53e99785b7602d9701f42864",
+        "5c757588f56def9798a015cf",
+        "53e99785b7602d9701f42863"
+      ],
+      "latency_ms": 250.97,
+      "ir_metrics": {
+        "precision@5": 0.0,
+        "recall@5": 0.0,
+        "precision@10": 0.0,
+        "recall@10": 0.0,
+        "mrr@10": 0.0,
+        "ndcg@10": 0.0
+      }
+    },
+    {
+      "query_id": 39,
+      "query": "In this paper, we emplore the isomorphism between vector time and causality to characterize consiste",
+      "relevant_paper_ids": [
+        "53e9a138b7602d9702a2a348"
+      ],
+      "retrieved_ids": [
+        "53e99785b7602d9701f418d0",
+        "53e9ad5db7602d9703741d98",
+        "53e9a3b3b7602d9702cc357c",
+        "53e99785b7602d9701f41524",
+        "56d8e2bedabfae2eee1d3903",
+        "53e99785b7602d9701f41582",
+        "53e9978eb7602d9701f534a1",
+        "53e99784b7602d9701f3f96f",
+        "53e99822b7602d9702043d0f",
+        "53e99785b7602d9701f418c0"
+      ],
+      "latency_ms": 230.01,
+      "ir_metrics": {
+        "precision@5": 0.0,
+        "recall@5": 0.0,
+        "precision@10": 0.0,
+        "recall@10": 0.0,
+        "mrr@10": 0.0,
+        "ndcg@10": 0.0
+      }
+    },
+    {
+      "query_id": 40,
+      "query": "Providing strict bandwidth or delay bound to packet flows in the Internet is an inherently challengi",
+      "relevant_paper_ids": [
+        "53e9bd04b7602d970498bc1d"
+      ],
+      "retrieved_ids": [
+        "53e9b910b7602d97044f603e",
+        "53e99784b7602d9701f3f704",
+        "53e9aca1b7602d970367b165",
+        "53e99784b7602d9701f3f600",
+        "53e99796b7602d9701f5e500",
+        "53e99785b7602d9701f427c5",
+        "53e9acf0b7602d97036d0d2e",
+        "53e99785b7602d9701f42849",
+        "53e99827b7602d9702047e1d",
+        "53e99785b7602d9701f41655"
+      ],
+      "latency_ms": 230.65,
+      "ir_metrics": {
+        "precision@5": 0.0,
+        "recall@5": 0.0,
+        "precision@10": 0.0,
+        "recall@10": 0.0,
+        "mrr@10": 0.0,
+        "ndcg@10": 0.0
+      }
+    },
+    {
+      "query_id": 41,
+      "query": "This paper proposes a control mode that enables the users of teleoperated non-holonomic differential",
+      "relevant_paper_ids": [
+        "558af1f9e4b037c0875a1aec"
+      ],
+      "retrieved_ids": [
+        "558af1f9e4b037c0875a1aec",
+        "53e99785b7602d9701f43d01",
+        "55465eb30cf2939c2feec1a8",
+        "53e99785b7602d9701f4287a",
+        "53e9978eb7602d9701f52d15",
+        "53e99784b7602d9701f3f6e8",
+        "56d8a80ddabfae2eee9c3846",
+        "53e99785b7602d9701f40664",
+        "5ce3aaa0ced107d4c658b60a",
+        "53e99785b7602d9701f42c74"
+      ],
+      "latency_ms": 221.89,
+      "ir_metrics": {
+        "precision@5": 0.2,
+        "recall@5": 1.0,
+        "precision@10": 0.1,
+        "recall@10": 1.0,
+        "mrr@10": 1.0,
+        "ndcg@10": 1.0
+      }
+    },
+    {
+      "query_id": 42,
+      "query": "We define in this paper a notion of realizability for the Calculus of Constructions",
+      "relevant_paper_ids": [
+        "53e9988cb7602d97020c81a0"
+      ],
+      "retrieved_ids": [
+        "53e9988cb7602d97020c81a0",
+        "53e99784b7602d9701f3f6b5",
+        "5c757379f56def97988a1997",
+        "53e99785b7602d9701f4059a",
+        "53e99796b7602d9701f5c83c",
+        "53e99785b7602d9701f41582",
+        "53e9bb36b7602d9704774eeb",
+        "53e99785b7602d9701f4155a",
+        "53e9a101b7602d97029ea379",
+        "53e99785b7602d9701f427ef"
+      ],
+      "latency_ms": 211.78,
+      "ir_metrics": {
+        "precision@5": 0.2,
+        "recall@5": 1.0,
+        "precision@10": 0.1,
+        "recall@10": 1.0,
+        "mrr@10": 1.0,
+        "ndcg@10": 1.0
+      }
+    },
+    {
+      "query_id": 43,
+      "query": "Correspondence",
+      "relevant_paper_ids": [
+        "53e9978ab7602d9701f4700f"
+      ],
+      "retrieved_ids": [
+        "keyword:correspondence",
+        "53e9978ab7602d9701f4745d",
+        "53e99785b7602d9701f405ec",
+        "53e9978ab7602d9701f4700f",
+        "53e99785b7602d9701f418b0",
+        "53e9978ab7602d9701f46c59",
+        "53e99785b7602d9701f41566",
+        "53e9978ab7602d9701f4756d",
+        "53e99785b7602d9701f427b8",
+        "53e9978ab7602d9701f473e7"
+      ],
+      "latency_ms": 298.6,
+      "ir_metrics": {
+        "precision@5": 0.2,
+        "recall@5": 1.0,
+        "precision@10": 0.1,
+        "recall@10": 1.0,
+        "mrr@10": 0.25,
+        "ndcg@10": 0.25
+      }
+    },
+    {
+      "query_id": 44,
+      "query": "In this work, a new state estimation method based on run-to-run control for high-mix semiconductor m",
+      "relevant_paper_ids": [
+        "558c9991e4b00c3c48e33375"
+      ],
+      "retrieved_ids": [
+        "569e44550cf26238f047d6b3",
+        "53e99784b7602d9701f3e15d",
+        "53e9a351b7602d9702c5e3cc",
+        "53e99785b7602d9701f418bf",
+        "558c9991e4b00c3c48e33375",
+        "53e99785b7602d9701f429d9",
+        "55465dc00cf2939c2fee852e",
+        "53e99785b7602d9701f4287a",
+        "5ca3375c3cb210d2716d2ba7",
+        "53e99784b7602d9701f3f7ff"
+      ],
+      "latency_ms": 240.59,
+      "ir_metrics": {
+        "precision@5": 0.2,
+        "recall@5": 1.0,
+        "precision@10": 0.1,
+        "recall@10": 1.0,
+        "mrr@10": 0.2,
+        "ndcg@10": 0.2
+      }
+    },
+    {
+      "query_id": 45,
+      "query": "The population annealing method is a promising approach for large-scale simulations because it is po",
+      "relevant_paper_ids": [
+        "5ed623da91e01198019afb42"
+      ],
+      "retrieved_ids": [
+        "558abf23e4b0b32fcb389ea5",
+        "53e99785b7602d9701f42c56",
+        "5ed623da91e01198019afb42",
+        "53e99784b7602d9701f3f95a",
+        "53e99d3db7602d97025f0a0a",
+        "53e99785b7602d9701f42ec7",
+        "53e9a965b7602d97032bc533",
+        "53e99785b7602d9701f414ab",
+        "53e9b1ffb7602d9703c9737d",
+        "53e99784b7602d9701f3eaf2"
+      ],
+      "latency_ms": 230.99,
+      "ir_metrics": {
+        "precision@5": 0.2,
+        "recall@5": 1.0,
+        "precision@10": 0.1,
+        "recall@10": 1.0,
+        "mrr@10": 0.3333333333333333,
+        "ndcg@10": 0.3333333333333333
+      }
+    },
+    {
+      "query_id": 46,
+      "query": "This pattern faces the problem of improving the performances of design patterns when they are invol",
+      "relevant_paper_ids": [
+        "53e99abdb7602d970233ae81"
+      ],
+      "retrieved_ids": [
+        "53e99785b7602d9701f42c56",
+        "53e99abdb7602d970233ae81",
+        "53e99784b7602d9701f3f913",
+        "53e99792b7602d9701f58110",
+        "53e99785b7602d9701f414fb",
+        "53e99792b7602d9701f58abe",
+        "53e99784b7602d9701f3f8c2",
+        "53e99792b7602d9701f580b1",
+        "53e99785b7602d9701f4279e",
+        "53e99838b7602d9702062aa5"
+      ],
+      "latency_ms": 226.34,
+      "ir_metrics": {
+        "precision@5": 0.2,
+        "recall@5": 1.0,
+        "precision@10": 0.1,
+        "recall@10": 1.0,
+        "mrr@10": 0.5,
+        "ndcg@10": 0.5
+      }
+    },
+    {
+      "query_id": 47,
+      "query": "A graduate film from the students of Supinfocom Valenciennes",
+      "relevant_paper_ids": [
+        "53e99796b7602d9701f5d97a"
+      ],
+      "retrieved_ids": [
+        "53e99785b7602d9701f418c3",
+        "53e99785b7602d9701f418c4",
+        "53e99785b7602d9701f418bc",
+        "53e99785b7602d9701f418bb",
+        "53e9978eb7602d9701f52b94",
+        "53e99785b7602d9701f427f6",
+        "53e9978eb7602d9701f52b98",
+        "53e99785b7602d9701f42815",
+        "53e9978db7602d9701f5254a",
+        "53e9978ab7602d9701f47d59"
+      ],
+      "latency_ms": 252.08,
+      "ir_metrics": {
+        "precision@5": 0.0,
+        "recall@5": 0.0,
+        "precision@10": 0.0,
+        "recall@10": 0.0,
+        "mrr@10": 0.0,
+        "ndcg@10": 0.0
+      }
+    },
+    {
+      "query_id": 48,
+      "query": "Katie Hindmarch-Watson. Serving a Wired World: London's Telecommunications Workers and",
+      "relevant_paper_ids": [
+        "60b9a6cfe4510cd7c8ffea01"
+      ],
+      "retrieved_ids": [
+        "60b9a6cfe4510cd7c8ffea01",
+        "53e99785b7602d9701f42847",
+        "53e9978eb7602d9701f531b6",
+        "53e99785b7602d9701f43ee5",
+        "53e9978eb7602d9701f52d23",
+        "53e99785b7602d9701f42849",
+        "53e9978eb7602d9701f52d60",
+        "53e99785b7602d9701f42c55",
+        "53e9978ab7602d9701f457c6",
+        "53e99785b7602d9701f414fb"
+      ],
+      "latency_ms": 187.76,
+      "ir_metrics": {
+        "precision@5": 0.2,
+        "recall@5": 1.0,
+        "precision@10": 0.1,
+        "recall@10": 1.0,
+        "mrr@10": 1.0,
+        "ndcg@10": 1.0
+      }
+    },
+    {
+      "query_id": 49,
+      "query": "Aspects of optimum filtering for complex valued random processes are presented",
+      "relevant_paper_ids": [
+        "53e99808b7602d970201b4dc"
+      ],
+      "retrieved_ids": [
+        "53e9988cb7602d97020c6d5f",
+        "53e99785b7602d9701f427da",
+        "53e9a0b5b7602d970299f192",
+        "53e99785b7602d9701f414ab",
+        "53e9a7abb7602d97030e6bb6",
+        "53e99785b7602d9701f406b3",
+        "558c45d9e4b00c3c48e14ae9",
+        "53e99784b7602d9701f3f7ff",
+        "53e9ae84b7602d970389f8b6",
+        "53e99785b7602d9701f40767"
+      ],
+      "latency_ms": 229.01,
+      "ir_metrics": {
+        "precision@5": 0.0,
+        "recall@5": 0.0,
+        "precision@10": 0.0,
+        "recall@10": 0.0,
+        "mrr@10": 0.0,
+        "ndcg@10": 0.0
+      }
+    },
+    {
+      "query_id": 50,
+      "query": "The hierarchical trusted computing base (TCB) subsetting architecture, which is intended to allow da",
+      "relevant_paper_ids": [
+        "557d39e76feeaa8086da8610"
+      ],
+      "retrieved_ids": [
+        "53e99a49b7602d97022a98fe",
+        "53e99785b7602d9701f418bf",
+        "56d859bfdabfae2eee4522f5",
+        "53e99785b7602d9701f427c5",
+        "53e9a237b7602d9702b3b39b",
+        "53e99784b7602d9701f3f642",
+        "56f5fe8b0cf2e9dcb5819abb",
+        "53e99785b7602d9701f41655",
+        "61dec0ff91e01162fe096527",
+        "53e99785b7602d9701f4277b"
+      ],
+      "latency_ms": 215.6,
+      "ir_metrics": {
+        "precision@5": 0.0,
+        "recall@5": 0.0,
+        "precision@10": 0.0,
+        "recall@10": 0.0,
+        "mrr@10": 0.0,
+        "ndcg@10": 0.0
+      }
+    }
+  ]
+}

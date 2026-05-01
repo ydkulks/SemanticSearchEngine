@@ -1,0 +1,752 @@
+[
+  {
+    "id": 1,
+    "query": "The spectacular expansion of the Internet has led to the development of a new research problem in th",
+    "relevant_paper_ids": [
+      "5dd50ed43a55ac513761799c"
+    ],
+    "relevant_titles": [
+      "Towards Non-Toxic Landscapes - Automatic Toxic Comment Detection Using DNN."
+    ],
+    "metadata": {
+      "year": 2020,
+      "venue": "TRAC@LREC",
+      "authors": []
+    }
+  },
+  {
+    "id": 2,
+    "query": "Exploratory Web Searching with Dynamic Taxonomies, Results Clustering and Visualization",
+    "relevant_paper_ids": [
+      "56d8496fdabfae2eeec89e1f"
+    ],
+    "relevant_titles": [
+      "Exploratory Web Searching with Dynamic Taxonomies, Results Clustering and Visualization."
+    ],
+    "metadata": {
+      "year": 2010,
+      "venue": "TCDL Bulletin",
+      "authors": []
+    }
+  },
+  {
+    "id": 3,
+    "query": "In this paper we explore frameworks for performing unit testing in Java",
+    "relevant_paper_ids": [
+      "53e9984bb7602d970207f565"
+    ],
+    "relevant_titles": [
+      "Unit testing frameworks"
+    ],
+    "metadata": {
+      "year": 2002,
+      "venue": "Special Interest Group on Computer Science Education",
+      "authors": []
+    }
+  },
+  {
+    "id": 4,
+    "query": "How many times have you gone to the grocery store but left the grocery list on the refrigerator door",
+    "relevant_paper_ids": [
+      "53e9ba38b7602d9704644f69"
+    ],
+    "relevant_titles": [
+      "comMotion: a context-aware communication system"
+    ],
+    "metadata": {
+      "year": 1999,
+      "venue": "CHI '99 Extended Abstracts on Human Factors in Computing Systems",
+      "authors": []
+    }
+  },
+  {
+    "id": 5,
+    "query": "Calderaland",
+    "relevant_paper_ids": [
+      "53e9978ab7602d9701f45790"
+    ],
+    "relevant_titles": [
+      "Calderaland"
+    ],
+    "metadata": {
+      "year": 1996,
+      "venue": "SIGGRAPH Visual Proceedings",
+      "authors": []
+    }
+  },
+  {
+    "id": 6,
+    "query": "We study sorting machines consisting of a stack and a pop stack in series, with or without a queue b",
+    "relevant_paper_ids": [
+      "56d89d85dabfae2eee4a858b"
+    ],
+    "relevant_titles": [
+      "A Stack And A Pop Stack In Series"
+    ],
+    "metadata": {
+      "year": 2014,
+      "venue": "AUSTRALASIAN JOURNAL OF COMBINATORICS",
+      "authors": []
+    }
+  },
+  {
+    "id": 7,
+    "query": "Incumbent and LSA Licensee Classification Through Distributed Cognitive Networks",
+    "relevant_paper_ids": [
+      "5698fe5a0cf2e100919509d9"
+    ],
+    "relevant_titles": [
+      "Incumbent and LSA Licensee Classification Through Distributed Cognitive Networks"
+    ],
+    "metadata": {
+      "year": 2016,
+      "venue": "Communications, IEEE Transactions",
+      "authors": []
+    }
+  },
+  {
+    "id": 8,
+    "query": "Due to the lack of face to face interaction in online learning environment, this article aims essent",
+    "relevant_paper_ids": [
+      "5ce3afbaced107d4c65f7eb3"
+    ],
+    "relevant_titles": [
+      "Doc2vec &Naive Bayes: Learners' Cognitive Presence Assessment Through Asynchronous Online Discussion Tq Transcripts"
+    ],
+    "metadata": {
+      "year": 2019,
+      "venue": "INTERNATIONAL JOURNAL OF EMERGING TECHNOLOGIES IN LEARNING",
+      "authors": []
+    }
+  },
+  {
+    "id": 9,
+    "query": "Finding a Repository with the Help of Machine-Actionable DMPs: Opportunities",
+    "relevant_paper_ids": [
+      "5ff68176d4150a363cb6e262"
+    ],
+    "relevant_titles": [
+      "Finding a Repository with the Help of Machine-Actionable DMPs: Opportunities and Challenges."
+    ],
+    "metadata": {
+      "year": 2020,
+      "venue": "Int. J. Digit. Curation",
+      "authors": []
+    }
+  },
+  {
+    "id": 10,
+    "query": "In this note we obtain upper bounds on the number of hyperedges in 3-uniform hypergraphs not contain",
+    "relevant_paper_ids": [
+      "5ce2d210ced107d4c64980dc"
+    ],
+    "relevant_titles": [
+      "A Note On The Turan Number Of A Berge Odd Cycle"
+    ],
+    "metadata": {
+      "year": 2021,
+      "venue": "AUSTRALASIAN JOURNAL OF COMBINATORICS",
+      "authors": []
+    }
+  },
+  {
+    "id": 11,
+    "query": "UIST '21: The Adjunct Publication of the 34th Annual ACM",
+    "relevant_paper_ids": [
+      "634826be90e50fcafd9de223"
+    ],
+    "relevant_titles": [
+      "UIST '21: The Adjunct Publication of the 34th Annual ACM Symposium on User Interface Software and Technology, Virtual Event, USA, October 10-14, 2021."
+    ],
+    "metadata": {
+      "year": 2021,
+      "venue": "ACM Symposium on User Interface Software and Technology",
+      "authors": []
+    }
+  },
+  {
+    "id": 12,
+    "query": "The goal of blockmodeling is to reduce a large, potentially incoherent network to asmaller comprehe",
+    "relevant_paper_ids": [
+      "53e99796b7602d9701f5d69e"
+    ],
+    "relevant_titles": [
+      "Generalized Blockmodeling"
+    ],
+    "metadata": {
+      "year": 1999,
+      "venue": "Informatica (Slovenia)",
+      "authors": []
+    }
+  },
+  {
+    "id": 13,
+    "query": "We present a new construction method for a doubly exponential class of binary codes with the paramet",
+    "relevant_paper_ids": [
+      "6340f7d590e50fcafdd3703a"
+    ],
+    "relevant_titles": [
+      "On Weight Distributions for a Class of Codes with Parameters of Reed-Muller Codes"
+    ],
+    "metadata": {
+      "year": 2022,
+      "venue": "Problems of Information Transmission",
+      "authors": []
+    }
+  },
+  {
+    "id": 14,
+    "query": "This document describes the S/KEY* One-Time Password system as released for public use by Bellcore a",
+    "relevant_paper_ids": [
+      "53e9b672b7602d97041da834"
+    ],
+    "relevant_titles": [
+      "The S/KEY One-Time Password System"
+    ],
+    "metadata": {
+      "year": 1995,
+      "venue": "The S/KEY One-Time Password System",
+      "authors": []
+    }
+  },
+  {
+    "id": 15,
+    "query": "America's Front Porch-The Public Library",
+    "relevant_paper_ids": [
+      "56d9142cdabfae2eee4ebada"
+    ],
+    "relevant_titles": [
+      "America's Front Porch-The Public Library."
+    ],
+    "metadata": {
+      "year": 2002,
+      "venue": "PUBLIC LIBRARY QUARTERLY",
+      "authors": []
+    }
+  },
+  {
+    "id": 16,
+    "query": "Classification-Aware Path Planning of Network of Robots",
+    "relevant_paper_ids": [
+      "61dec0d991e01162fe096056"
+    ],
+    "relevant_titles": [
+      "Classification-Aware Path Planning of Network of Robots."
+    ],
+    "metadata": {
+      "year": 2021,
+      "venue": "DARS",
+      "authors": []
+    }
+  },
+  {
+    "id": 17,
+    "query": "We investigate a simple algorithm that combines multiband processing and least squares fits to estim",
+    "relevant_paper_ids": [
+      "53e9aa61b7602d97033d503b"
+    ],
+    "relevant_titles": [
+      "Multiband statistical learning for f0 estimation in speech"
+    ],
+    "metadata": {
+      "year": 2004,
+      "venue": "ICASSP '04). IEEE International Conference",
+      "authors": []
+    }
+  },
+  {
+    "id": 18,
+    "query": "Systems principles: foundation for the SoSE methodology",
+    "relevant_paper_ids": [
+      "56d90eeadabfae2eee2ed53c"
+    ],
+    "relevant_titles": [
+      "Systems principles: foundation for the SoSE methodology."
+    ],
+    "metadata": {
+      "year": 2011,
+      "venue": "Int. J. Syst. Syst. Eng.",
+      "authors": []
+    }
+  },
+  {
+    "id": 19,
+    "query": "Component based development is recognized now as a powerful tool to manage actual systems' technolog",
+    "relevant_paper_ids": [
+      "53e99cb5b7602d9702566da5"
+    ],
+    "relevant_titles": [
+      "Multi-view Metamodeling of Software Architecture Behavior."
+    ],
+    "metadata": {
+      "year": 2009,
+      "venue": "JSW",
+      "authors": []
+    }
+  },
+  {
+    "id": 20,
+    "query": "In this paper the problems involved with high-level synthesis of ASIC regular arrays for multi-dimen",
+    "relevant_paper_ids": [
+      "53e9b3ceb7602d9703ebbadb"
+    ],
+    "relevant_titles": [
+      "Affine transformations for multi-dimensional signal processing on ASIC regular arrays"
+    ],
+    "metadata": {
+      "year": 1991,
+      "venue": "EURO-DAC '91 Proceedings of the conference on European design automation",
+      "authors": []
+    }
+  },
+  {
+    "id": 21,
+    "query": "Maintaining security in wireless systems has been a challenge due to the broadcast nature of wireles",
+    "relevant_paper_ids": [
+      "55c33d88683a451f09d27469"
+    ],
+    "relevant_titles": [
+      "Adaptive Physical Layer Security Framework for Wireless Systems"
+    ],
+    "metadata": {
+      "year": 2015,
+      "venue": "Vehicular Technology Conference",
+      "authors": []
+    }
+  },
+  {
+    "id": 22,
+    "query": "Firewalls are critical security devices handling all traffic in and out of a network",
+    "relevant_paper_ids": [
+      "53e99796b7602d9701f5e10d"
+    ],
+    "relevant_titles": [
+      "Firewall fingerprinting"
+    ],
+    "metadata": {
+      "year": 2012,
+      "venue": "Orlando, FL",
+      "authors": []
+    }
+  },
+  {
+    "id": 23,
+    "query": "An efficient direct method for the computation of a length-N discrete cosine transform (DCT) given t",
+    "relevant_paper_ids": [
+      "53e9abc4b7602d970357781e"
+    ],
+    "relevant_titles": [
+      "Direct transform to transform computation"
+    ],
+    "metadata": {
+      "year": 1999,
+      "venue": "IEEE Signal Processing Letters",
+      "authors": []
+    }
+  },
+  {
+    "id": 24,
+    "query": "We propose an extension over the traditional call graph to incorporate edges representing control fl",
+    "relevant_paper_ids": [
+      "55465ecc0cf2939c2feec7bb"
+    ],
+    "relevant_titles": [
+      "Taint analysis of manual service compositions using Cross-Application Call Graphs"
+    ],
+    "metadata": {
+      "year": 2015,
+      "venue": "Software Analysis, Evolution and Reengineering",
+      "authors": []
+    }
+  },
+  {
+    "id": 25,
+    "query": "Geocomputation",
+    "relevant_paper_ids": [
+      "53e99785b7602d9701f40628"
+    ],
+    "relevant_titles": [
+      "Geocomputation"
+    ],
+    "metadata": {
+      "year": 2004,
+      "venue": "Future Generation Computer Systems",
+      "authors": []
+    }
+  },
+  {
+    "id": 26,
+    "query": "According to our current conception of physics, any valid physical theory is supposed to describe th",
+    "relevant_paper_ids": [
+      "5c757dc4f56def9798b1d903"
+    ],
+    "relevant_titles": [
+      "Law without law: from observer states to physics via algorithmic information theory"
+    ],
+    "metadata": {
+      "year": 2020,
+      "venue": "QUANTUM",
+      "authors": []
+    }
+  },
+  {
+    "id": 27,
+    "query": "More on the linear k-arboricity of regular graphs",
+    "relevant_paper_ids": [
+      "53e9a0e6b7602d97029cd08e"
+    ],
+    "relevant_titles": [
+      "More on the linear k-arboricity of regular graphs."
+    ],
+    "metadata": {
+      "year": 1998,
+      "venue": "Australasian J. Combinatorics",
+      "authors": []
+    }
+  },
+  {
+    "id": 28,
+    "query": "The European Microcomputer-Chess Championship",
+    "relevant_paper_ids": [
+      "55a426e8612ca64868891ab7"
+    ],
+    "relevant_titles": [
+      "The European Microcomputer-Chess Championship."
+    ],
+    "metadata": {
+      "year": 1984,
+      "venue": "ICGA Journal",
+      "authors": []
+    }
+  },
+  {
+    "id": 29,
+    "query": "Federated learning enables multiple users to build a joint model by sharing their model updates (g",
+    "relevant_paper_ids": [
+      "60a77d5691e011f90a51dcbd"
+    ],
+    "relevant_titles": [
+      "User-Level Label Leakage from Gradients in Federated Learning."
+    ],
+    "metadata": {
+      "year": 2022,
+      "venue": "Proc. Priv. Enhancing Technol.",
+      "authors": []
+    }
+  },
+  {
+    "id": 30,
+    "query": "Understanding the dynamics of fishing effort plays a key role in predicting the impacts of regulator",
+    "relevant_paper_ids": [
+      "53e9b62eb7602d970418ad0d"
+    ],
+    "relevant_titles": [
+      "Modeling fleet response in regulated fisheries: An agent-based approach"
+    ],
+    "metadata": {
+      "year": 2006,
+      "venue": "Mathematical and Computer Modelling: An International Journal",
+      "authors": []
+    }
+  },
+  {
+    "id": 31,
+    "query": "The Cost of IEEE Arithmetic in Secure Computation",
+    "relevant_paper_ids": [
+      "605aa237e4510cd7c86b1920"
+    ],
+    "relevant_titles": [
+      "The Cost of IEEE Arithmetic in Secure Computation."
+    ],
+    "metadata": {
+      "year": 2021,
+      "venue": "LATINCRYPT",
+      "authors": []
+    }
+  },
+  {
+    "id": 32,
+    "query": "We provide a new foundation for combinatorial commutative algebra and Stanley-Reisner theory using",
+    "relevant_paper_ids": [
+      "5f2948a591e011376d9c6054"
+    ],
+    "relevant_titles": [
+      "The partition complex - an invitation to combinatorial commutative algebra."
+    ],
+    "metadata": {
+      "year": 2021,
+      "venue": "BCC",
+      "authors": []
+    }
+  },
+  {
+    "id": 33,
+    "query": "Expect virtual immortality through enduring, realistic avatars based on published work and archived",
+    "relevant_paper_ids": [
+      "53e99803b7602d970201438c"
+    ],
+    "relevant_titles": [
+      "Future tense: Will"
+    ],
+    "metadata": {
+      "year": 2015,
+      "venue": "Communications of the ACM - Enterprise information integration: and other tools for merging data",
+      "authors": []
+    }
+  },
+  {
+    "id": 34,
+    "query": "Soft robotic actuators are well-suited for interactions with the human body, particularly in rehabil",
+    "relevant_paper_ids": [
+      "5db92a9b47c8f7664620d2fc"
+    ],
+    "relevant_titles": [
+      "Modeling And Analysis Of Hydraulic Piston Actuation Of Mckibben Fluidic Artificial Muscles For Hand Rehabilitation"
+    ],
+    "metadata": {
+      "year": 2021,
+      "venue": "INTERNATIONAL JOURNAL OF ROBOTICS RESEARCH",
+      "authors": []
+    }
+  },
+  {
+    "id": 35,
+    "query": "In this contribution, variance properties of L\"2 model reduction are studied",
+    "relevant_paper_ids": [
+      "53e9a9f6b7602d970335d66e"
+    ],
+    "relevant_titles": [
+      "Brief Variance analysis of L2 model reduction when undermodeling-the output error case"
+    ],
+    "metadata": {
+      "year": 2003,
+      "venue": "Automatica (Journal of IFAC)",
+      "authors": []
+    }
+  },
+  {
+    "id": 36,
+    "query": "Current trends in Nan electro magnetics - a new field of research synthesizing classical radio physi",
+    "relevant_paper_ids": [
+      "563387e90cf2549603296f60"
+    ],
+    "relevant_titles": [
+      "Challenges and Perspectives of Nanoelectromagnetics in the THz Range"
+    ],
+    "metadata": {
+      "year": 2015,
+      "venue": "VLSI",
+      "authors": []
+    }
+  },
+  {
+    "id": 37,
+    "query": "We demonstrate an InP/Silicon integrated ECL using a photonic wirebond as intra-cavity coupling elem",
+    "relevant_paper_ids": [
+      "5ea012b99fced0a24b9c472a"
+    ],
+    "relevant_titles": [
+      "InP/Silicon Hybrid External-Cavity Lasers (ECL) using Photonic Wirebonds as Coupling Elements."
+    ],
+    "metadata": {
+      "year": 2020,
+      "venue": "OFC",
+      "authors": []
+    }
+  },
+  {
+    "id": 38,
+    "query": "In recent years, the scale of enrollment in colleges and universities continues to expand",
+    "relevant_paper_ids": [
+      "5c75705cf56def97986e5b0f"
+    ],
+    "relevant_titles": [
+      "Research On The Comprehensive Strength Evaluation For Universities Based On The Fuzzy Topsis Method"
+    ],
+    "metadata": {
+      "year": 2017,
+      "venue": "INTERNATIONAL JOURNAL OF EMERGING TECHNOLOGIES IN LEARNING",
+      "authors": []
+    }
+  },
+  {
+    "id": 39,
+    "query": "In this paper, we emplore the isomorphism between vector time and causality to characterize consiste",
+    "relevant_paper_ids": [
+      "53e9a138b7602d9702a2a348"
+    ],
+    "relevant_titles": [
+      "Guaranteed Mutually Consistent Checkpointing in Distributed Computations"
+    ],
+    "metadata": {
+      "year": 2000,
+      "venue": "Asian Computing Science Conference",
+      "authors": []
+    }
+  },
+  {
+    "id": 40,
+    "query": "Providing strict bandwidth or delay bound to packet flows in the Internet is an inherently challengi",
+    "relevant_paper_ids": [
+      "53e9bd04b7602d970498bc1d"
+    ],
+    "relevant_titles": [
+      "Expedited Forwarding End-to-End Delay Budget Partitioning"
+    ],
+    "metadata": {
+      "year": 2006,
+      "venue": "CCNC",
+      "authors": []
+    }
+  },
+  {
+    "id": 41,
+    "query": "This paper proposes a control mode that enables the users of teleoperated non-holonomic differential",
+    "relevant_paper_ids": [
+      "558af1f9e4b037c0875a1aec"
+    ],
+    "relevant_titles": [
+      "A new control mode for teleoperated differential drive UGVs"
+    ],
+    "metadata": {
+      "year": 2007,
+      "venue": "New Orleans, LA",
+      "authors": []
+    }
+  },
+  {
+    "id": 42,
+    "query": "We define in this paper a notion of realizability for the Calculus of Constructions",
+    "relevant_paper_ids": [
+      "53e9988cb7602d97020c81a0"
+    ],
+    "relevant_titles": [
+      "Extracting &ohgr;'s programs from proofs in the calculus of constructions"
+    ],
+    "metadata": {
+      "year": 1989,
+      "venue": "POPL '89 Proceedings of the 16th ACM SIGPLAN-SIGACT symposium on Principles of programming languages",
+      "authors": []
+    }
+  },
+  {
+    "id": 43,
+    "query": "Correspondence",
+    "relevant_paper_ids": [
+      "53e9978ab7602d9701f4700f"
+    ],
+    "relevant_titles": [
+      "Correspondence"
+    ],
+    "metadata": {
+      "year": 1963,
+      "venue": "British Journal of Radiology",
+      "authors": []
+    }
+  },
+  {
+    "id": 44,
+    "query": "In this work, a new state estimation method based on run-to-run control for high-mix semiconductor m",
+    "relevant_paper_ids": [
+      "558c9991e4b00c3c48e33375"
+    ],
+    "relevant_titles": [
+      "ANOVA model based moving window approach for RtR control in high-mix semiconductor manufacturing industry"
+    ],
+    "metadata": {
+      "year": 2013,
+      "venue": "Control Conference",
+      "authors": []
+    }
+  },
+  {
+    "id": 45,
+    "query": "The population annealing method is a promising approach for large-scale simulations because it is po",
+    "relevant_paper_ids": [
+      "5ed623da91e01198019afb42"
+    ],
+    "relevant_titles": [
+      "Algorithm For Replica Redistribution In An Implementation Of The Population Annealing Method On A Hybrid Supercomputer Architecture"
+    ],
+    "metadata": {
+      "year": 2021,
+      "venue": "Computer Physics Communications",
+      "authors": []
+    }
+  },
+  {
+    "id": 46,
+    "query": "This pattern faces the problem of improving the performances of design patterns when they are invol",
+    "relevant_paper_ids": [
+      "53e99abdb7602d970233ae81"
+    ],
+    "relevant_titles": [
+      "Generic Programming Redesign of Patterns."
+    ],
+    "metadata": {
+      "year": 2000,
+      "venue": "EuroPLoP",
+      "authors": []
+    }
+  },
+  {
+    "id": 47,
+    "query": "A graduate film from the students of Supinfocom Valenciennes",
+    "relevant_paper_ids": [
+      "53e99796b7602d9701f5d97a"
+    ],
+    "relevant_titles": [
+      "Facteur mineur"
+    ],
+    "metadata": {
+      "year": 2009,
+      "venue": "SIGGRAPH Computer Animation Fesitval",
+      "authors": []
+    }
+  },
+  {
+    "id": 48,
+    "query": "Katie Hindmarch-Watson. Serving a Wired World: London's Telecommunications Workers and",
+    "relevant_paper_ids": [
+      "60b9a6cfe4510cd7c8ffea01"
+    ],
+    "relevant_titles": [
+      "Katie Hindmarch-Watson. Serving a Wired World: London's Telecommunications Workers and the Making of an Information Capital. Oakland: University of California Press, 2020. 288p. Hardcover, $29.95 (ISBN 978-0-5203-4473-0)."
+    ],
+    "metadata": {
+      "year": 2021,
+      "venue": "Coll. Res. Libr.",
+      "authors": []
+    }
+  },
+  {
+    "id": 49,
+    "query": "Aspects of optimum filtering for complex valued random processes are presented",
+    "relevant_paper_ids": [
+      "53e99808b7602d970201b4dc"
+    ],
+    "relevant_titles": [
+      "Conjugate linear filtering"
+    ],
+    "metadata": {
+      "year": 1969,
+      "venue": "IEEE Transactions on Information Theory",
+      "authors": []
+    }
+  },
+  {
+    "id": 50,
+    "query": "The hierarchical trusted computing base (TCB) subsetting architecture, which is intended to allow da",
+    "relevant_paper_ids": [
+      "557d39e76feeaa8086da8610"
+    ],
+    "relevant_titles": [
+      "Considerations on TCB subsetting"
+    ],
+    "metadata": {
+      "year": 1989,
+      "venue": "Tucson, AZ",
+      "authors": []
+    }
+  }
+]
